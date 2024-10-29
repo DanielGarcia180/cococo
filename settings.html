@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración del Sistema</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Variables CSS para temas */
+        :root {
+            --background-color: #ffffff;
+            --text-color: #000000;
+            --button-background-color: #007bff;
+            --button-text-color: #ffffff;
+            --input-background-color: #ffffff;
+            --input-text-color: #000000;
+            --modal-background-color: rgba(0, 0, 0, 0.8);
+            --section-background-color: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Estilos para botones */
+        .btn-primary {
+            background-color: var(--button-background-color);
+            color: var(--button-text-color);
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        /* Estilos para inputs y selects */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            background-color: var(--input-background-color);
+            color: var(--input-text-color);
+            border: 1px solid #ced4da;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Estilos para secciones */
+        .settings-section {
+            background-color: var(--section-background-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        /* Estilos para modales */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: var(--modal-background-color);
+        }
+
+        .modal-content {
+            background-color: var(--section-background-color);
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            color: var(--text-color);
+            border-radius: 5px;
+        }
+
+        /* Estilos adicionales para el modo oscuro */
+        body.dark-theme {
+            --background-color: #121212;
+            --text-color: #e0e0e0;
+            --button-background-color: #1f1f1f;
+            --button-text-color: #e0e0e0;
+            --input-background-color: #1f1f1f;
+            --input-text-color: #e0e0e0;
+            --modal-background-color: rgba(0, 0, 0, 0.9);
+            --section-background-color: #1e1e1e;
+        }
+
+        /* Estilos para la barra lateral */
+        .sidebar {
+            background-color: var(--section-background-color);
+        }
+
+        .sidebar ul li a {
+            color: var(--text-color);
+        }
+
+        .sidebar ul li.active a {
+            background-color: var(--button-background-color);
+            color: var(--button-text-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="home.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Análisis</a></li>
+            <li><a href="geospatial.html"><i class="fas fa-map"></i> Geoespacial</a></li>
+            <li class="active"><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Configuración del Sistema</h1>
+
+        <div class="settings-container">
+            <!-- Configuración del Tema -->
+            <section class="settings-section">
+                <h2><i class="fas fa-cog"></i> Configuración del Tema</h2>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label>Tema:</label>
+                        <div class="theme-options">
+                            <label><input type="radio" name="theme" value="light" checked> Claro</label>
+                            <label><input type="radio" name="theme" value="dark"> Oscuro</label>
+                            <label><input type="radio" name="theme" value="custom"> Personalizado</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notificaciones -->
+            <section class="settings-section">
+                <h2><i class="fas fa-bell"></i> Notificaciones</h2>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label>Frecuencia de Notificaciones:</label>
+                        <select id="notification-frequency">
+                            <option value="immediate">Inmediata</option>
+                            <option value="daily">Diaria</option>
+                            <option value="weekly">Semanal</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Tipo de Notificaciones:</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="email-reports"> Informes Generados</label>
+                            <label><input type="checkbox" id="email-updates"> Actualizaciones del Sistema</label>
+                            <label><input type="checkbox" id="email-alerts"> Alertas de Seguridad</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preferencias del Usuario -->
+            <section class="settings-section">
+                <h2><i class="fas fa-user"></i> Preferencias del Usuario</h2>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label for="username">Nombre:</label>
+                        <input type="text" id="username">
+                    </div>
+                    <div class="setting-item">
+                        <label for="email">Correo Electrónico:</label>
+                        <input type="email" id="email">
+                    </div>
+                    <div class="setting-item">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password">
+                    </div>
+                    <div class="setting-item">
+                        <label for="language">Idioma:</label>
+                        <select id="language">
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                            <option value="fr">Français</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Configuración Avanzada -->
+            <section class="settings-section">
+                <h2><i class="fas fa-shield-alt"></i> Configuración Avanzada</h2>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label>API Keys:</label>
+                        <button id="manage-api-keys" class="btn-secondary">Gestionar API Keys</button>
+                    </div>
+                    <div class="setting-item">
+                        <label>Seguridad:</label>
+                        <button id="manage-security" class="btn-secondary">Gestionar Seguridad</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="settings-actions">
+            <button id="save-settings" class="btn-primary">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+            <button id="reset-settings" class="btn-secondary">
+                <i class="fas fa-undo"></i> Restablecer por Defecto
+            </button>
+        </div>
+
+        <!-- Modal de Confirmación -->
+        <div id="confirm-modal" class="modal">
+            <div class="modal-content">
+                <h3>Confirmar Cambios</h3>
+                <p>¿Está seguro de que desea aplicar estos cambios?</p>
+                <div class="modal-actions">
+                    <button id="confirm-changes" class="btn-primary">Confirmar</button>
+                    <button id="cancel-changes" class="btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Éxito -->
+        <div id="success-modal" class="modal">
+            <div class="modal-content success">
+                <i class="fas fa-check-circle"></i>
+                <h3>Cambios Guardados</h3>
+                <p>Los cambios se han guardado correctamente.</p>
+                <button class="btn-primary modal-close">Aceptar</button>
+            </div>
+        </div>
+
+        <!-- Modal de Personalización del Tema -->
+        <div id="custom-theme-modal" class="modal">
+            <div class="modal-content">
+                <h3>Personalizar Tema</h3>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label for="background-color">Color de Fondo:</label>
+                        <input type="color" id="background-color" value="#ffffff">
+                    </div>
+                    <div class="setting-item">
+                        <label for="text-color">Color de Texto:</label>
+                        <input type="color" id="text-color" value="#000000">
+                    </div>
+                    <div class="setting-item">
+                        <label for="button-color">Color de Botón:</label>
+                        <input type="color" id="button-color" value="#007bff">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button id="apply-custom-theme" class="btn-primary">Aplicar</button>
+                    <button class="btn-secondary modal-close">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <!-- Script para las funciones -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referencias a elementos
+            const themeRadios = document.getElementsByName('theme');
+            const customThemeModal = document.getElementById('custom-theme-modal');
+            const applyCustomThemeBtn = document.getElementById('apply-custom-theme');
+            const backgroundColorInput = document.getElementById('background-color');
+            const textColorInput = document.getElementById('text-color');
+            const buttonColorInput = document.getElementById('button-color');
+            const root = document.documentElement;
+
+            const saveSettingsBtn = document.getElementById('save-settings');
+            const resetSettingsBtn = document.getElementById('reset-settings');
+            const confirmModal = document.getElementById('confirm-modal');
+            const successModal = document.getElementById('success-modal');
+            const confirmChangesBtn = document.getElementById('confirm-changes');
+            const cancelChangesBtn = document.getElementById('cancel-changes');
+            const modalCloses = document.querySelectorAll('.modal-close');
+
+            // Función para abrir modales
+            function openModal(modal) {
+                modal.style.display = 'block';
+            }
+
+            // Función para cerrar modales
+            function closeModal(modal) {
+                modal.style.display = 'none';
+            }
+
+            // Funciones de tema
+            function setLightTheme() {
+                document.body.classList.remove('dark-theme');
+                root.style.setProperty('--background-color', '#ffffff');
+                root.style.setProperty('--text-color', '#000000');
+                root.style.setProperty('--button-background-color', '#007bff');
+                root.style.setProperty('--button-text-color', '#ffffff');
+                root.style.setProperty('--input-background-color', '#ffffff');
+                root.style.setProperty('--input-text-color', '#000000');
+                root.style.setProperty('--modal-background-color', 'rgba(0, 0, 0, 0.8)');
+                root.style.setProperty('--section-background-color', '#f8f9fa');
+            }
+
+            function setDarkTheme() {
+                document.body.classList.add('dark-theme');
+                root.style.setProperty('--background-color', '#121212');
+                root.style.setProperty('--text-color', '#e0e0e0');
+                root.style.setProperty('--button-background-color', '#1f1f1f');
+                root.style.setProperty('--button-text-color', '#e0e0e0');
+                root.style.setProperty('--input-background-color', '#1f1f1f');
+                root.style.setProperty('--input-text-color', '#e0e0e0');
+                root.style.setProperty('--modal-background-color', 'rgba(0, 0, 0, 0.9)');
+                root.style.setProperty('--section-background-color', '#1e1e1e');
+            }
+
+            // Evento para cambio de tema
+            themeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'light') {
+                        setLightTheme();
+                    } else if (this.value === 'dark') {
+                        setDarkTheme();
+                    } else if (this.value === 'custom') {
+                        openModal(customThemeModal);
+                    }
+                });
+            });
+
+            // Aplicar tema personalizado
+            applyCustomThemeBtn.addEventListener('click', function() {
+                const backgroundColor = backgroundColorInput.value;
+                const textColor = textColorInput.value;
+                const buttonColor = buttonColorInput.value;
+
+                root.style.setProperty('--background-color', backgroundColor);
+                root.style.setProperty('--text-color', textColor);
+                root.style.setProperty('--button-background-color', buttonColor);
+                root.style.setProperty('--button-text-color', textColor);
+                root.style.setProperty('--input-background-color', backgroundColor);
+                root.style.setProperty('--input-text-color', textColor);
+                root.style.setProperty('--section-background-color', backgroundColor);
+
+                closeModal(customThemeModal);
+            });
+
+            // Cerrar modal de tema personalizado
+            const customThemeModalClose = customThemeModal.querySelector('.modal-close');
+            customThemeModalClose.addEventListener('click', function() {
+                closeModal(customThemeModal);
+            });
+
+            // Guardar configuración
+            saveSettingsBtn.addEventListener('click', function() {
+                openModal(confirmModal);
+            });
+
+            // Confirmar cambios
+            confirmChangesBtn.addEventListener('click', function() {
+                // Aquí puedes agregar lógica para guardar las configuraciones
+                closeModal(confirmModal);
+                openModal(successModal);
+            });
+
+            // Cancelar cambios
+            cancelChangesBtn.addEventListener('click', function() {
+                closeModal(confirmModal);
+            });
+
+            // Cerrar modales al hacer clic en botones de cerrar
+            modalCloses.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = this.closest('.modal');
+                    closeModal(modal);
+                });
+            });
+
+            // Restablecer configuración por defecto
+            resetSettingsBtn.addEventListener('click', function() {
+                // Restablecer tema a claro por defecto
+                setLightTheme();
+                // Restablecer otras configuraciones si es necesario
+                document.getElementById('username').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('language').value = 'es';
+                document.getElementById('notification-frequency').value = 'immediate';
+                document.getElementById('email-reports').checked = false;
+                document.getElementById('email-updates').checked = false;
+                document.getElementById('email-alerts').checked = false;
+
+                // Restablecer selección de tema
+                document.querySelector('input[name="theme"][value="light"]').checked = true;
+            });
+
+            // Gestionar API Keys
+            document.getElementById('manage-api-keys').addEventListener('click', function() {
+                alert('Funcionalidad para gestionar API Keys no implementada.');
+            });
+
+            // Gestionar Seguridad
+            document.getElementById('manage-security').addEventListener('click', function() {
+                alert('Funcionalidad para gestionar la seguridad no implementada.');
+            });
+
+            // Cambio de idioma
+            document.getElementById('language').addEventListener('change', function() {
+                alert('Cambio de idioma a ' + this.options[this.selectedIndex].text + ' no implementado.');
+            });
+
+            // Validación de correo electrónico
+            document.getElementById('email').addEventListener('input', function() {
+                const email = this.value;
+                const regex = /^\S+@\S+\.\S+$/;
+                if (!regex.test(email)) {
+                    this.style.borderColor = 'red';
+                } else {
+                    this.style.borderColor = '';
+                }
+            });
+
+            // Validación de contraseña
+            document.getElementById('password').addEventListener('input', function() {
+                const password = this.value;
+                if (password.length < 6) {
+                    this.style.borderColor = 'red';
+                } else {
+                    this.style.borderColor = '';
+                }
+            });
+
+            // Eventos para notificaciones
+            document.getElementById('notification-frequency').addEventListener('change', function() {
+                // Manejar cambio en frecuencia de notificaciones
+                console.log('Frecuencia de notificaciones cambiada a: ' + this.value);
+            });
+
+            const notificationCheckboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+            notificationCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    console.log('Tipo de notificación ' + this.id + ' cambiado a: ' + this.checked);
+                });
+            });
+
+            // Al cargar la página, aplicar el tema seleccionado
+            if (document.querySelector('input[name="theme"][value="dark"]').checked) {
+                setDarkTheme();
+            } else {
+                setLightTheme();
+            }
+        });
+    </script>
+</body>
+</html>
+

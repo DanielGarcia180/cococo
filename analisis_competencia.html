@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Competencia Avanzado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@2.0.2/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --text-color: #333;
+            --bg-color: #ecf0f1;
+            --card-bg-color: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+        h1, h2 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        form {
+            display: grid;
+            gap: 1rem;
+        }
+        label {
+            font-weight: 500;
+        }
+        input, select, button, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card p {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 1rem;
+            border-radius: 8px;
+        }
+        .filter-sort {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .filter-sort select {
+            flex: 1;
+        }
+        .alert {
+            background-color: var(--accent-color);
+            color: rgb(114, 66, 66);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            background-color: #f1f1f1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        #imageUpload {
+            display: none;
+        }
+        #cropperContainer {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        #croppedImage {
+            max-width: 100%;
+            height: auto;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+        .loading::after {
+            content: "⏳";
+            animation: loading 1s infinite;
+        }
+        @keyframes loading {
+            0% { content: "⏳"; }
+            33% { content: "⌛"; }
+            66% { content: "⏳"; }
+        }
+        #notificationBell {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        #notificationBell:hover {
+            background-color: #2980b9;
+        }
+        #notificationPanel {
+            display: none;
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .accessibility-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--secondary-color);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .accessibility-controls button {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        #chatbot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background-color: rgb(15, 9, 9);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #chatbotHeader {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #chatbotMessages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        #chatbotInput {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        #chatbotInput input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .dark-mode {
+            filter: invert(1) hue-rotate(180deg);
+        }
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .tutorial-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            text-align: center;
+        }
+        .tutorial-content h2 {
+            margin-bottom: 1rem;
+        }
+        .tutorial-content p {
+            margin-bottom: 1rem;
+        }
+        .tutorial-content button {
+            margin: 0 0.5rem;
+        }
+        .help-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        .help-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .help-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                padding: 1rem;
+            }
+            form {
+                grid-template-columns: 1fr;
+            }
+            .filter-sort {
+                flex-direction: column;
+            }
+            .accessibility-controls {
+                bottom: 10px;
+                right: 10px;
+            }
+            #chatbot {
+                width: 100%;
+                height: 50vh;
+                bottom: 0;
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Análisis de Competencia Avanzado</h1>
+        
+        <div id="notificationBell"><i class="fas fa-bell"></i></div>
+        <div id="notificationPanel"></div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="productos">Productos</button>
+            <button class="tab" data-tab="analisis">Análisis</button>
+            <button class="tab" data-tab="predicciones">Predicciones</button>
+            <button class="tab" data-tab="competidores">Competidores</button>
+            <button class="tab" data-tab="configuracion">Configuración</button>
+        </div>
+
+        <div id="productosTab" class="tab-content active">
+            <div class="card">
+                <h2>Agregar Nuevo Producto <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Añade un nuevo producto para analizar su competitividad en el mercado.</span></span></h2>
+                <form id="productForm">
+                    <div>
+                        <label for="productName">Nombre del Producto</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div>
+                        <label for="productCategory">Categoría</label>
+                        <select id="productCategory" required>
+                            <option value="">Seleccione una categoría</option>
+                            <option value="electronica">Electrónica</option>
+                            <option value="ropa">Ropa</option>
+                            <option  value="hogar">Hogar</option>
+                            <option value="alimentos">Alimentos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="ownPrice">Precio Propio</label>
+                        <input type="number" id="ownPrice" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="competitor1">Competidor 1</label>
+                        <input type="text" id="competitor1" required>
+                    </div>
+                    <div>
+                        <label for="competitor1Price">Precio Competidor 1</label>
+                        <input type="number" id="competitor1Price" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="competitor2">Competidor 2</label>
+                        <input type="text" id="competitor2" required>
+                    </div>
+                    <div>
+                        <label for="competitor2Price">Precio Competidor 2</label>
+                        <input type="number" id="competitor2Price" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="productDescription">Descripción del Producto</label>
+                        <textarea id="productDescription" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label for="imageUpload">Imagen del Producto</label>
+                        <input type="file" id="imageUpload" accept="image/*">
+                    </div>
+                    <div id="cropperContainer" style="display: none;">
+                        <img id="croppedImage" src="" alt="Imagen recortada">
+                    </div>
+                    <button type="submit">Agregar Producto</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Productos Registrados <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Lista de todos los productos registrados para análisis.</span></span></h2>
+                <div class="filter-sort">
+                    <select id="filterSelect">
+                        <option value="all">Todos los productos</option>
+                        <option value="cheaper">Más baratos que la competencia</option>
+                        <option value="expensive">Más caros que la competencia</option>
+                    </select>
+                    <select id="sortSelect">
+                        <option value="name">Ordenar por nombre</option>
+                        <option value="price">Ordenar por precio propio</option>
+                        <option value="date">Ordenar por fecha</option>
+                    </select>
+                    <input type="text" id="searchProducts" placeholder="Buscar productos...">
+                </div>
+                <table id="productTable">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Precio Propio</th>
+                            <th>Competidor 1</th>
+                            <th>Precio Competidor 1</th>
+                            <th>Competidor 2</th>
+                            <th>Precio Competidor 2</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button id="exportCSV" style="margin-top: 1rem;">Exportar a CSV</button>
+                <button id="exportPDF" style="margin-top: 1rem;">Exportar a PDF</button>
+            </div>
+        </div>
+
+        <div id="analisisTab" class="tab-content">
+            <div class="card">
+                <h2>Comparativa de Precios <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Visualización gráfica de los precios de tus productos vs. competidores.</span></span></h2>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Análisis de Tendencias <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Gráfico de tendencias de precios a lo largo del tiempo.</span></span></h2>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Distribución de Precios <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Histograma mostrando la distribución de precios en el mercado.</span></span></h2>
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Análisis de Sentimientos <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Análisis del sentimiento de las descripciones de productos.</span></span></h2>
+                <div id="sentimentAnalysis"></div>
+            </div>
+
+            <div class="card">
+                <h2>Mapa de Calor de Precios <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Visualización de la intensidad de precios por categoría y producto.</span></span></h2>
+                <div id="priceHeatmap"></div>
+            </div>
+
+            <div class="card">
+                <h2>Estadísticas <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Resumen estadístico de tus productos y competidores.</span></span></h2>
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+        </div>
+
+        <div id="prediccionesTab" class="tab-content">
+            <div class="card">
+                <h2>Predicción de Precios <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Estimaciones de precios futuros basadas en datos históricos.</span></span></h2>
+                <div id="pricePrediction"></div>
+            </div>
+
+            <div class="card">
+                <h2>Análisis de Estacionalidad <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Identificación de patrones estacionales en los precios.</span></span></h2>
+                <div id="seasonalityAnalysis"></div>
+            </div>
+
+            <div class="card">
+                <h2>Proyección de Ventas <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Estimaciones de ventas futuras basadas en tendencias actuales.</span></span></h2>
+                <div id="salesProjection"></div>
+            </div>
+        </div>
+
+        <div id="competidoresTab" class="tab-content">
+            <div class="card">
+                <h2>Búsqueda de Productos Similares <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Encuentra productos similares en el mercado para comparar.</span></span></h2>
+                <form id="searchForm">
+                    <input type="text" id="searchQuery" placeholder="Buscar productos similares" required>
+                    <button type="submit">Buscar</button>
+                </form>
+                <div id="searchResults"></div>
+            </div>
+
+            <div class="card">
+                <h2>Productos Cercanos <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Localiza productos de la competencia en tu área geográfica.</span></span></h2>
+                <button id="findNearbyProducts">Buscar Productos Cercanos</button>
+                <div id="map"></div>
+                <div id="nearbyResults"></div>
+            </div>
+
+            <div class="card">
+                <h2>Análisis de Competidores <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Análisis detallado de tus principales competidores.</span></span></h2>
+                <div id="competitorAnalysis"></div>
+            </div>
+        </div>
+
+        <div id="configuracionTab" class="tab-content">
+            <div class="card">
+                <h2>Configuración de Alertas <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Configura alertas para cambios significativos en precios.</span></span></h2>
+                <form id="alertForm">
+                    <label for="alertProduct">Producto</label>
+                    <select id="alertProduct" required></select>
+                    <label for="alertThreshold">Umbral de Precio (%)</label>
+                    <input type="number" id="alertThreshold" required min="1" max="100" step="1">
+                    <button type="submit">Configurar Alerta</button>
+                </form>
+                <div id="alertsContainer"></div>
+            </div>
+
+            <div class="card">
+                <h2>Configuración de Notificaciones <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Personaliza cómo y cuándo recibes notificaciones.</span></span></h2>
+                <form id="notificationForm">
+                    <label>
+                        <input type="checkbox" id="emailNotifications"> Recibir notificaciones por email
+                    </label>
+                    <label>
+                        <input type="checkbox" id="pushNotifications"> Recibir notificaciones push
+                    </label>
+                    <button type="submit">Guardar Preferencias</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Integración con APIs <span class="help-tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Configura la integración con APIs externas para obtener datos adicionales.</span></span></h2>
+                <form id="apiIntegrationForm">
+                    <label for="apiKey">Clave de API</label>
+                    <input type="text" id="apiKey" required>
+                    <label for="apiEndpoint">URL del Endpoint</label>
+                    <input type="url" id="apiEndpoint" required>
+                    <button type="submit">Guardar Configuración de API</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="accessibility-controls">
+        <button id="increaseFontSize" title="Aumentar tamaño de fuente"><i class="fas fa-text-height"></i> A+</button>
+        <button id="decreaseFontSize" title="Disminuir tamaño de fuente"><i class="fas fa-text-height"></i> A-</button>
+        <button id="toggleContrast" title="Alternar alto contraste"><i class="fas fa-adjust"></i></button>
+        <button id="toggleDarkMode" title="Alternar modo oscuro"><i class="fas fa-moon"></i></button>
+    </div>
+
+    <div id="chatbot" style="display: none;">
+        <div id="chatbotHeader">
+            <span>Asistente Virtual</span>
+            <button id="closeChatbot"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatbotMessages"></div>
+        <div id="chatbotInput">
+            <input type="text" id="chatbotMessage" placeholder="Escribe tu mensaje...">
+            <button id="sendChatMessage"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+        let priceChart, trendChart, distributionChart;
+        let map, placesService;
+        let cropper;
+
+        // Sistema de pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}Tab`).classList.add('active');
+            });
+        });
+
+        // Carga y guardado de datos en localStorage
+        function loadProducts() {
+            const savedProducts = localStorage.getItem('products');
+            if (savedProducts) {
+                products = JSON.parse(savedProducts);
+                updateTable();
+                updateCharts();
+                updateStats();
+                updateAlertProductSelect();
+            }
+        }
+
+        function saveProducts() {
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+
+        // Mejora en el formulario de productos
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const product = {
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                ownPrice: parseFloat(document.getElementById('ownPrice').value),
+                competitor1: document.getElementById('competitor1').value,
+                competitor1Price: parseFloat(document.getElementById('competitor1Price').value),
+                competitor2: document.getElementById('competitor2').value,
+                competitor2Price: parseFloat(document.getElementById('competitor2Price').value),
+                description: document.getElementById('productDescription').value,
+                date: new Date().toISOString().split('T')[0],
+                image: document.getElementById('croppedImage').src
+            };
+            products.push(product);
+            updateTable();
+            updateCharts();
+            updateStats();
+            updateAlertProductSelect();
+            saveProducts();
+            this.reset();
+            document.getElementById('cropperContainer').style.display = 'none';
+            showNotification('Producto agregado con éxito');
+        });
+
+        // Implementación de cropper.js para imágenes de productos
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('croppedImage').src = event.target.result;
+                document.getElementById('cropperContainer').style.display = 'block';
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper(document.getElementById('croppedImage'), {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                });
+            }
+            reader.readAsDataURL(file);
+        });
+
+        // Mejora en la tabla de productos
+        function updateTable() {
+            const tbody = document.querySelector('#productTable tbody');
+            tbody.innerHTML = '';
+            products.forEach((product, index) => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.category}</td>
+                    <td>$${product.ownPrice.toFixed(2)}</td>
+                    <td>${product.competitor1}</td>
+                    <td>$${product.competitor1Price.toFixed(2)}</td>
+                    <td>${product.competitor2}</td>
+                    <td>$${product.competitor2Price.toFixed(2)}</td>
+                    <td>${product.date}</td>
+                    <td>
+                        <button onclick="editProduct(${index})"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteProduct(${index})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+            });
+        }
+
+        // Funciones de edición y eliminación de productos
+        function editProduct(index) {
+            const product = products[index];
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('ownPrice').value = product.ownPrice;
+            document.getElementById('competitor1').value = product.competitor1;
+            document.getElementById('competitor1Price').value = product.competitor1Price;
+            document.getElementById('competitor2').value = product.competitor2;
+            document.getElementById('competitor2Price').value = product.competitor2Price;
+            document.getElementById('productDescription').value = product.description;
+            document.getElementById('croppedImage').src = product.image;
+            document.getElementById('cropperContainer').style.display = 'block';
+            products.splice(index, 1);
+            updateTable();
+            updateCharts();
+            updateStats();
+            saveProducts();
+            showNotification('Producto listo para editar');
+        }
+
+        function deleteProduct(index) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                products.splice(index, 1);
+                updateTable();
+                updateCharts();
+                updateStats();
+                saveProducts();
+                showNotification('Producto eliminado');
+            }
+        }
+
+        // Mejora en los gráficos
+        function updateCharts() {
+            updatePriceChart();
+            updateTrendChart();
+            updateDistributionChart();
+            updatePriceHeatmap();
+        }
+
+        function updatePriceChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            if (priceChart) priceChart.destroy();
+            priceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: products.map(p => p.name),
+                    datasets: [
+                        {
+                            label: 'Precio Propio',
+                            data: products.map(p => p.ownPrice),
+                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                        },
+                        {
+                            label: 'Competidor 1',
+                            data: products.map(p => p.competitor1Price),
+                            backgroundColor: 'rgba(231, 76, 60, 0.6)',
+                        },
+                        {
+                            label: 'Competidor 2',
+                            data: products.map(p => p.competitor2Price),
+                            backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Precio ($)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTrendChart() {
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            if (trendChart) trendChart.destroy();
+            trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: products.map(p => p.date),
+                    datasets: [
+                        {
+                            label: 'Precio Propio',
+                            data: products.map(p => p.ownPrice),
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Competidor 1',
+                            data: products.map(p => p.competitor1Price),
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Competidor 2',
+                            data: products.map(p => p.competitor2Price),
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Precio ($)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDistributionChart() {
+            const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+            if (distributionChart) distributionChart.destroy();
+
+            const allPrices = products.flatMap(p => [p.ownPrice, p.competitor1Price, p.competitor2Price]);
+            const minPrice = Math.min(...allPrices);
+            const maxPrice = Math.max(...allPrices);
+
+            const binSize = (maxPrice - minPrice) / 10;
+            const bins = Array(10).fill(0);
+
+            allPrices.forEach(price => {
+                const binIndex = Math.min(Math.floor((price - minPrice) / binSize), 9);
+                bins[binIndex]++;
+            });
+
+            distributionChart = new Chart(distributionCtx, {
+                type: 'bar',
+                data: {
+                    labels: bins.map((_, i) => `$${(minPrice + i * binSize).toFixed(2)} - $${(minPrice + (i + 1) * binSize).toFixed(2)}`),
+                    datasets: [{
+                        label: 'Distribución de Precios',
+                        data: bins,
+                        backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Frecuencia'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Rango de Precios'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Implementación de mapa de calor de precios
+        function updatePriceHeatmap() {
+            const heatmapData = products.map(p => ({
+                x: p.name,
+                y: 'Precio Propio',
+                value: p.ownPrice
+            })).concat(products.map(p => ({
+                x: p.name,
+                y: 'Competidor 1',
+                value: p.competitor1Price
+            }))).concat(products.map(p => ({
+                x: p.name,
+                y: 'Competidor 2',
+                value: p.competitor2Price
+            })));
+
+            const options = {
+                series: [{
+                    name: 'Precios',
+                    data: heatmapData
+                }],
+                chart: {
+                    height: 350,
+                    type: 'heatmap',
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                colors: ["#008FFB"],
+                title: {
+                    text: 'Mapa de Calor de Precios'
+                },
+            };
+
+            const chart = new ApexCharts(document.querySelector("#priceHeatmap"), options);
+            chart.render();
+        }
+
+        // Mejora en las estadísticas
+        function updateStats() {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = '';
+
+            const totalProducts = products.length;
+            const avgOwnPrice = products.reduce((sum, p) => sum + p.ownPrice, 0) / totalProducts;
+            const avgComp1Price = products.reduce((sum, p) => sum + p.competitor1Price, 0) / totalProducts;
+            const avgComp2Price = products.reduce((sum, p) => sum + p.competitor2Price, 0) / totalProducts;
+            const priceDiffComp1 = ((avgOwnPrice - avgComp1Price) / avgComp1Price) * 100;
+            const priceDiffComp2 = ((avgOwnPrice - avgComp2Price) / avgComp2Price) * 100;
+
+            const cheaperThanComp = products.filter(p => p.ownPrice < Math.min(p.competitor1Price, p.competitor2Price)).length;
+            const cheaperPercentage = (cheaperThanComp / totalProducts) * 100;
+
+            const stats = [
+                { label: 'Total de Productos', value: totalProducts },
+                { label: 'Precio Promedio Propio', value: `$${avgOwnPrice.toFixed(2)}` },
+                { label: 'Precio Promedio Competidor 1', value: `$${avgComp1Price.toFixed(2)}` },
+                { label: 'Precio Promedio Competidor 2', value: `$${avgComp2Price.toFixed(2)}` },
+                { label: 'Diferencia % con Competidor 1', value: `${priceDiffComp1.toFixed(2)}%` },
+                { label: 'Diferencia % con Competidor 2', value: `${priceDiffComp2.toFixed(2)}%` },
+                { label: 'Productos más baratos que la competencia', value: `${cheaperPercentage.toFixed(2)}%` }
+            ];
+
+            stats.forEach(stat => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                statCard.innerHTML = `<h3>${stat.label}</h3><p>${stat.value}</p>`;
+                statsGrid.appendChild(statCard);
+            });
+        }
+
+        // Implementación de búsqueda de productos similares mejorada
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = document.getElementById('searchQuery').value;
+            searchProducts(query);
+        });
+
+        async function searchProducts(query) {
+            try {
+                const response = await axios.get(`https://api.mercadolibre.com/sites/MLA/search?q=${encodeURIComponent(query)}`);
+                const results = response.data.results.slice(0, 10);
+                displaySearchResults(results);
+            } catch (error) {
+                console.error('Error al buscar productos:', error);
+                showNotification('Hubo un error al buscar productos. Por favor, intenta de nuevo.', 'error');
+            }
+        }
+
+        function displaySearchResults(results) {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '<h3>Resultados de la búsqueda:</h3>';
+            const list = document.createElement('ul');
+            results.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <strong>${item.title}</strong><br>
+                    Precio: $${item.price}<br>
+                    <a href="${item.permalink}" target="_blank">Ver en MercadoLibre</a>
+                    <button onclick="addCompetitorProduct('${item.title}', ${item.price})">Agregar como Competidor</button>
+                `;
+                list.appendChild(li);
+            });
+            resultsContainer.appendChild(list);
+        }
+
+        // Función para agregar productos de competidores
+        function addCompetitorProduct(name, price) {
+            const newProduct = {
+                name: name,
+                category: 'Competidor',
+                ownPrice: 0,
+                competitor1: 'MercadoLibre',
+                competitor1Price: price,
+                competitor2: '',
+                competitor2Price: 0,
+                date: new Date().toISOString().split('T')[0]
+            };
+            products.push(newProduct);
+            updateTable();
+            updateCharts();
+            updateStats();
+            saveProducts();
+            showNotification('Producto competidor agregado');
+        }
+
+        // Implementación de geolocalización y búsqueda de productos cercanos
+        document.getElementById('findNearbyProducts').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(initMap, showError);
+            } else {
+                showNotification("La geolocalización no es soportada por este navegador.", 'error');
+            }
+        });
+
+        function initMap(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat, lng },
+                zoom: 15
+            });
+
+            placesService = new google.maps.places.PlacesService(map);
+
+            const request = {
+                location: { lat, lng },
+                radius: '500',
+                type: ['store']
+            };
+
+            placesService.nearbySearch(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    for (let i = 0; i < results.length; i++) {
+                        createMarker(results[i]);
+                    }
+                    displayNearbyResults(results);
+                }
+            });
+        }
+
+        function createMarker(place) {
+            if (!place.geometry || !place.geometry.location) return;
+
+            const marker = new google.maps.Marker({
+                map,
+                position: place.geometry.location
+            });
+
+            google.maps.event.addListener(marker, 'click', () => {
+                const infowindow = new google.maps.InfoWindow();
+                infowindow.setContent(place.name || '');
+                infowindow.open(map, marker);
+            });
+        }
+
+        function displayNearbyResults(results) {
+            const resultsContainer = document.getElementById('nearbyResults');
+            resultsContainer.innerHTML = '<h3>Tiendas cercanas:</h3>';
+            const list = document.createElement('ul');
+            results.forEach(place => {
+                const li = document.createElement('li');
+                li.textContent = place.name;
+                list.appendChild(li);
+            });
+            resultsContainer.appendChild(list);
+        }
+
+        function showError(error) {
+            let message;
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = "El usuario denegó la solicitud de geolocalización.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = "La información de ubicación no está disponible.";
+                    break;
+                case error.TIMEOUT:
+                    message = "La solicitud para obtener la ubicación del usuario expiró.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    message = "Ocurrió un error desconocido.";
+                    break;
+            }
+            showNotification(message, 'error');
+        }
+
+        // Implementación de filtrado y ordenamiento mejorado
+        document.getElementById('filterSelect').addEventListener('change', filterAndSortTable);
+        document.getElementById('sortSelect').addEventListener('change', filterAndSortTable);
+        document.getElementById('searchProducts').addEventListener('input', filterAndSortTable);
+
+        function filterAndSortTable() {
+            const filterValue = document.getElementById('filterSelect').value;
+            const sortValue = document.getElementById('sortSelect').value;
+            const searchValue = document.getElementById('searchProducts').value.toLowerCase();
+
+            let filteredProducts = [...products];
+
+            // Aplicar filtro
+            if (filterValue === 'cheaper') {
+                filteredProducts = filteredProducts.filter(p => p.ownPrice < Math.min(p.competitor1Price, p.competitor2Price));
+            } else if (filterValue === 'expensive') {
+                filteredProducts = filteredProducts.filter(p => p.ownPrice > Math.max(p.competitor1Price, p.competitor2Price));
+            }
+
+            //  Aplicar búsqueda
+            if (searchValue) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.name.toLowerCase().includes(searchValue) ||
+                    p.category.toLowerCase().includes(searchValue)
+                );
+            }
+
+            // Aplicar ordenamiento
+            filteredProducts.sort((a, b) => {
+                if (sortValue === 'name') {
+                    return a.name.localeCompare(b.name);
+                } else if (sortValue === 'price') {
+                    return a.ownPrice - b.ownPrice;
+                } else if (sortValue === 'date') {
+                    return new Date(b.date) - new Date(a.date);
+                }
+            });
+
+            // Actualizar tabla
+            updateTableWithFilteredProducts(filteredProducts);
+        }
+
+        function updateTableWithFilteredProducts(filteredProducts) {
+            const tbody = document.querySelector('#productTable tbody');
+            tbody.innerHTML = '';
+            filteredProducts.forEach((product, index) => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.category}</td>
+                    <td>$${product.ownPrice.toFixed(2)}</td>
+                    <td>${product.competitor1}</td>
+                    <td>$${product.competitor1Price.toFixed(2)}</td>
+                    <td>${product.competitor2}</td>
+                    <td>$${product.competitor2Price.toFixed(2)}</td>
+                    <td>${product.date}</td>
+                    <td>
+                        <button onclick="editProduct(${index})"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteProduct(${index})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+            });
+        }
+
+        // Implementación de exportación a CSV y PDF
+        document.getElementById('exportCSV').addEventListener('click', function() {
+            const csv = Papa.unparse(products);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "productos_analisis_competencia.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            showNotification('Datos exportados a CSV');
+        });
+
+        document.getElementById('exportPDF').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Análisis de Competencia - Reporte de Productos", 10, 10);
+            
+            const columns = ["Nombre", "Categoría", "Precio Propio", "Competidor 1", "Precio Comp. 1", "Competidor 2", "Precio Comp. 2", "Fecha"];
+            const data = products.map(p => [p.name, p.category, p.ownPrice.toFixed(2), p.competitor1, p.competitor1Price.toFixed(2), p.competitor2, p.competitor2Price.toFixed(2), p.date]);
+            
+            doc.autoTable({
+                head: [columns],
+                body: data,
+                startY: 20
+            });
+
+            doc.save("reporte_analisis_competencia.pdf");
+            showNotification('Datos exportados a PDF');
+        });
+
+        // Implementación de sistema de alertas mejorado
+        function updateAlertProductSelect() {
+            const select = document.getElementById('alertProduct');
+            select.innerHTML = '';
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.name;
+                option.textContent = product.name;
+                select.appendChild(option);
+            });
+        }
+
+        document.getElementById('alertForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const productName = document.getElementById('alertProduct').value;
+            const threshold = parseFloat(document.getElementById('alertThreshold').value);
+            
+            const alertsContainer = document.getElementById('alertsContainer');
+            const alertElement = document.createElement('div');
+            alertElement.className = 'alert';
+            alertElement.textContent = `Alerta configurada para ${productName} con un umbral de ${threshold}%`;
+            alertsContainer.appendChild(alertElement);
+
+            // Guardar la alerta en localStorage
+            const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
+            alerts.push({ productName, threshold });
+            localStorage.setItem('alerts', JSON.stringify(alerts));
+
+            this.reset();
+            showNotification('Alerta configurada');
+        });
+
+        function checkPriceAlerts() {
+            const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
+            const alertsContainer = document.getElementById('alertsContainer');
+            
+            alerts.forEach(alert => {
+                const product = products.find(p => p.name === alert.productName);
+                if (product) {
+                    const avgCompetitorPrice = (product.competitor1Price + product.competitor2Price) / 2;
+                    const priceDifference = ((product.ownPrice - avgCompetitorPrice) / avgCompetitorPrice) * 100;
+
+                    if (Math.abs(priceDifference) > alert.threshold) {
+                        const alertElement = document.createElement('div');
+                        alertElement.className = 'alert';
+                        alertElement.textContent = `¡Alerta! El precio de ${product.name} es ${priceDifference > 0 ? 'mayor' : 'menor'} que el promedio de la competencia por ${Math.abs(priceDifference).toFixed(2)}%`;
+                        alertsContainer.appendChild(alertElement);
+                        showNotification(`Alerta de precio para ${product.name}`);
+                    }
+                }
+            });
+        }
+
+        // Implementación de análisis de sentimientos
+        function analyzeSentiment(text) {
+            // Esta es una implementación simplificada. En un escenario real, se usaría una API de NLP.
+            const positiveWords = ['excelente', 'bueno', 'genial', 'fantástico', 'increíble'];
+            const negativeWords = ['malo', 'terrible', 'horrible', 'pésimo', 'defectuoso'];
+            
+            let score = 0;
+            text.toLowerCase().split(' ').forEach(word => {
+                if (positiveWords.includes(word)) score++;
+                if (negativeWords.includes(word)) score--;
+            });
+
+            if (score > 0) return 'Positivo';
+            if (score < 0) return 'Negativo';
+            return 'Neutral';
+        }
+
+        function updateSentimentAnalysis() {
+            const sentimentContainer = document.getElementById('sentimentAnalysis');
+            sentimentContainer.innerHTML = '<h3>Análisis de Sentimientos de Productos</h3>';
+            
+            products.forEach(product => {
+                const sentiment = analyzeSentiment(product.description || '');
+                const sentimentElement = document.createElement('p');
+                sentimentElement.textContent = `${product.name}: ${sentiment}`;
+                sentimentContainer.appendChild(sentimentElement);
+            });
+        }
+
+        // Implementación de predicción de precios
+        function predictPrices() {
+            const pricePredictionContainer = document.getElementById('pricePrediction');
+            pricePredictionContainer.innerHTML = '<h3>Predicción de Precios para los Próximos 30 Días</h3>';
+
+            products.forEach(product => {
+                const historicalPrices = [product.ownPrice, product.competitor1Price, product.competitor2Price];
+                const avgPrice = historicalPrices.reduce((a, b) => a + b, 0) / historicalPrices.length;
+                const predictedPrice = avgPrice * (1 + (Math.random() - 0.5) * 0.1); // Simulación simple
+
+                const predictionElement = document.createElement('p');
+                predictionElement.textContent = `${product.name}: $${predictedPrice.toFixed(2)}`;
+                pricePredictionContainer.appendChild(predictionElement);
+            });
+        }
+
+        // Implementación de análisis de estacionalidad
+        function analyzeSeasonality() {
+            const seasonalityContainer = document.getElementById('seasonalityAnalysis');
+            seasonalityContainer.innerHTML = '<h3>Análisis de Estacionalidad</h3>';
+
+            const seasons = ['Primavera', 'Verano', 'Otoño', 'Invierno'];
+            const seasonalityData = {};
+
+            products.forEach(product => {
+                const date = new Date(product.date);
+                const season = seasons[Math.floor((date.getMonth() / 12 * 4)) % 4];
+                
+                if (!seasonalityData[product.name]) {
+                    seasonalityData[product.name] = { Primavera: 0, Verano: 0, Otoño: 0, Invierno: 0 };
+                }
+                seasonalityData[product.name][season] += product.ownPrice;
+            });
+
+            for (const [product, data] of Object.entries(seasonalityData)) {
+                const seasonalityElement = document.createElement('div');
+                seasonalityElement.innerHTML = `
+                    <h4>${product}</h4>
+                    <ul>
+                        ${seasons.map(season => `<li>${season}: $${data[season].toFixed(2)}</li>`).join('')}
+                    </ul>
+                `;
+                seasonalityContainer.appendChild(seasonalityElement);
+            }
+        }
+
+        // Implementación de proyección de ventas
+        function projectSales() {
+            const salesProjectionContainer = document.getElementById('salesProjection');
+            salesProjectionContainer.innerHTML = '<h3>Proyección de Ventas para los Próximos 3 Meses</h3>';
+
+            products.forEach(product => {
+                const currentPrice = product.ownPrice;
+                const projectedSales = [
+                    currentPrice * (1 + Math.random() * 0.1),
+                    currentPrice * (1 + Math.random() * 0.15),
+                    currentPrice * (1 + Math.random() * 0.2)
+                ];
+
+                const projectionElement = document.createElement('div');
+                projectionElement.innerHTML = `
+                    <h4>${product.name}</h4>
+                    <ul>
+                        <li>Mes 1: $${projectedSales[0].toFixed(2)}</li>
+                        <li>Mes 2: $${projectedSales[1].toFixed(2)}</li>
+                        <li>Mes 3: $${projectedSales[2].toFixed(2)}</li>
+                    </ul>
+                `;
+                salesProjectionContainer.appendChild(projectionElement);
+            });
+        }
+
+        // Implementación de análisis de competidores
+        function analyzeCompetitors() {
+            const competitorAnalysisContainer = document.getElementById('competitorAnalysis');
+            competitorAnalysisContainer.innerHTML = '<h3>Análisis de Competidores</h3>';
+
+            const competitors = {};
+            products.forEach(product => {
+                if (!competitors[product.competitor1]) {
+                    competitors[product.competitor1] = [];
+                }
+                if (!competitors[product.competitor2]) {
+                    competitors[product.competitor2] = [];
+                }
+                competitors[product.competitor1].push(product.competitor1Price);
+                competitors[product.competitor2].push(product.competitor2Price);
+            });
+
+            for (const [competitor, prices] of Object.entries(competitors)) {
+                const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+                const competitorElement = document.createElement('div');
+                competitorElement.innerHTML = `
+                    <h4>${competitor}</h4>
+                    <p>Precio promedio: $${avgPrice.toFixed(2)}</p>
+                    <p>Productos: ${prices.length}</p>
+                `;
+                competitorAnalysisContainer.appendChild(competitorElement);
+            }
+        }
+
+        // Implementación de sistema de notificaciones
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationPanel = document.getElementById('notificationPanel');
+
+        notificationBell.addEventListener('click', () => {
+            notificationPanel.style.display = notificationPanel.style.display === 'none' ? 'block' : 'none';
+        });
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notificationPanel.appendChild(notification);
+            notificationBell.classList.add('new-notification');
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+        // Implementación de configuración de notificaciones
+        document.getElementById('notificationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const emailNotifications = document.getElementById('emailNotifications').checked;
+            const pushNotifications = document.getElementById('pushNotifications').checked;
+            
+            localStorage.setItem('notificationPreferences', JSON.stringify({ email: emailNotifications, push: pushNotifications }));
+            showNotification('Preferencias de notificación guardadas');
+        });
+
+        // Implementación de integración con APIs externas
+        document.getElementById('apiIntegrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const apiKey = document.getElementById('apiKey').value;
+            const apiEndpoint = document.getElementById('apiEndpoint').value;
+            
+            localStorage.setItem('apiConfig', JSON.stringify({ key: apiKey, endpoint: apiEndpoint }));
+            showNotification('Configuración de API guardada');
+        });
+
+        // Implementación de controles de accesibilidad
+        document.getElementById('increaseFontSize').addEventListener('click', () => {
+            document.body.style.fontSize = 'larger';
+        });
+
+        document.getElementById('decreaseFontSize').addEventListener('click', () => {
+            document.body.style.fontSize = 'smaller';
+        });
+
+        document.getElementById('toggleContrast').addEventListener('click', () => {
+            document.body.classList.toggle('high-contrast');
+        });
+
+        document.getElementById('toggleDarkMode').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        // Implementación de chatbot básico
+        const chatbot = document.getElementById('chatbot');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatbotInput = document.getElementById('chatbotMessage');
+        const sendChatMessage = document.getElementById('sendChatMessage');
+        const closeChatbot = document.getElementById('closeChatbot');
+
+        sendChatMessage.addEventListener('click', () => {
+            const message = chatbotInput.value;
+            if (message) {
+                addChatMessage('Usuario', message);
+                respondToMessage(message);
+                chatbotInput.value = '';
+            }
+        });
+
+        closeChatbot.addEventListener('click', () => {
+            chatbot.style.display = 'none';
+        });
+
+        function addChatMessage(sender, message) {
+            const messageElement = document.createElement('p');
+            messageElement.textContent = `${sender}: ${message}`;
+            chatbotMessages.appendChild(messageElement);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function respondToMessage(message) {
+            // Lógica simple del chatbot
+            let response;
+            if (message.toLowerCase().includes('precio')) {
+                response = 'Puedes ver los precios de los productos en la tabla de productos registrados.';
+            } else if (message.toLowerCase().includes('competidor')) {
+                response = 'Analizamos los precios de los competidores en la sección de Análisis de Competidores.';
+            } else {
+                response = 'Lo siento, no entiendo tu pregunta. ¿Puedes ser más específico?';
+            }
+            setTimeout(() => addChatMessage('Chatbot', response), 1000);
+        }
+
+        // Implementación de análisis de tendencias de mercado
+        function analyzeTrends() {
+            const trendContainer = document.createElement('div');
+            trendContainer.innerHTML = '<h3>Análisis de Tendencias de Mercado</h3>';
+            
+            const categories = [...new Set(products.map(p => p.category))];
+            categories.forEach(category => {
+                const categoryProducts = products.filter(p => p.category === category);
+                const avgPrice = categoryProducts.reduce((sum, p) => sum + p.ownPrice, 0) / categoryProducts.length;
+                const trendElement = document.createElement('p');
+                trendElement.textContent = `${category}: Precio promedio $${avgPrice.toFixed(2)}`;
+                trendContainer.appendChild(trendElement);
+            });
+
+            document.getElementById('analisisTab').appendChild(trendContainer);
+        }
+
+        // Implementación de recomendaciones de precios
+        function recommendPrices() {
+            const recommendationContainer = document.createElement('div');
+            recommendationContainer.innerHTML = '<h3>Recomendaciones de Precios</h3>';
+            
+            products.forEach(product => {
+                const avgCompetitorPrice = (product.competitor1Price + product.competitor2Price) / 2;
+                let recommendation;
+                if (product.ownPrice > avgCompetitorPrice * 1.1) {
+                    recommendation = 'Considere reducir el precio para ser más competitivo.';
+                } else if (product.ownPrice < avgCompetitorPrice * 0.9) {
+                    recommendation = 'Podría aumentar el precio sin perder competitividad.';
+                } else {
+                    recommendation = 'El precio actual es competitivo.';
+                }
+                
+                const recommendationElement = document.createElement('p');
+                recommendationElement.textContent = `${product.name}: ${recommendation}`;
+                recommendationContainer.appendChild(recommendationElement);
+            });
+
+            document.getElementById('analisisTab').appendChild(recommendationContainer);
+        }
+
+        // Implementación de análisis de margen de beneficio
+        function analyzeProfit() {
+            const profitContainer = document.createElement('div');
+            profitContainer.innerHTML = '<h3>Análisis de Margen de Beneficio</h3>';
+            
+            products.forEach(product => {
+                // Asumimos un costo del 70% del precio más bajo entre el propio y los competidores
+                const cost = Math.min(product.ownPrice, product.competitor1Price, product.competitor2Price) * 0.7;
+                const profit = product.ownPrice - cost;
+                const profitMargin = (profit / product.ownPrice) * 100;
+                
+                const profitElement = document.createElement('p');
+                profitElement.textContent = `${product.name}: Margen de beneficio ${profitMargin.toFixed(2)}%`;
+                profitContainer.appendChild(profitElement);
+            });
+
+            document.getElementById('analisisTab').appendChild(profitContainer);
+        }
+
+        // Implementación de análisis de cuota de mercado
+        function analyzeMarketShare() {
+            const marketShareContainer = document.createElement('div');
+            marketShareContainer.innerHTML = '<h3>Análisis de Cuota de Mercado</h3>';
+            
+            const totalProducts = products.length;
+            const categories = {};
+            
+            products.forEach(product => {
+                if (!categories[product.category]) {
+                    categories[product.category] = 0;
+                }
+                categories[product.category]++;
+            });
+            
+            for (const [category, count] of Object.entries(categories)) {
+                const marketShare = (count / totalProducts) * 100;
+                const marketShareElement = document.createElement('p');
+                marketShareElement.textContent = `${category}: ${marketShare.toFixed(2)}% de cuota de mercado`;
+                marketShareContainer.appendChild(marketShareElement);
+            }
+
+            document.getElementById('analisisTab').appendChild(marketShareContainer);
+        }
+
+        // Implementación de análisis de elasticidad de precios
+        function analyzePriceElasticity() {
+            const elasticityContainer = document.createElement('div');
+            elasticityContainer.innerHTML = '<h3>Análisis de Elasticidad de Precios</h3>';
+            
+            products.forEach(product => {
+                // Simulamos cambios en la demanda basados en cambios de precio
+                const priceIncrease = product.ownPrice * 1.1;
+                const priceDecrease = product.ownPrice * 0.9;
+                const demandDecrease = Math.random() * 0.2; // 0-20% decrease in demand
+                const demandIncrease = Math.random() * 0.2; // 0-20% increase in demand
+                
+                const elasticityIncrease = (demandDecrease / 0.1) / (0.1 / 1);
+                const elasticityDecrease = (demandIncrease / 0.1) / (0.1 / 1);
+                
+                const elasticityElement = document.createElement('p');
+                elasticityElement.textContent = `${product.name}: Elasticidad al aumento de precio: ${elasticityIncrease.toFixed(2)}, Elasticidad a la disminución de precio: ${elasticityDecrease.toFixed(2)}`;
+                elasticityContainer.appendChild(elasticityElement);
+            });
+
+            document.getElementById('analisisTab').appendChild(elasticityContainer);
+        }
+
+        // Implementación de análisis de correlación entre variables
+        function analyzeCorrelation() {
+            const correlationContainer = document.createElement('div');
+            correlationContainer.innerHTML = '<h3>Análisis de Correlación</h3>';
+            
+            const priceOwnVsComp1 = calculateCorrelation(products.map(p => p.ownPrice), products.map(p => p.competitor1Price));
+            const priceOwnVsComp2 = calculateCorrelation(products.map(p => p.ownPrice), products.map(p => p.competitor2Price));
+            
+            const correlationElement1 = document.createElement('p');
+            correlationElement1.textContent = `Correlación entre precio propio y Competidor 1: ${priceOwnVsComp1.toFixed(2)}`;
+            correlationContainer.appendChild(correlationElement1);
+            
+            const correlationElement2 = document.createElement('p');
+            correlationElement2.textContent = `Correlación entre precio propio y Competidor 2: ${priceOwnVsComp2.toFixed(2)}`;
+            correlationContainer.appendChild(correlationElement2);
+
+            document.getElementById('analisisTab').appendChild(correlationContainer);
+        }
+
+        function calculateCorrelation(x, y) {
+            const n = x.length;
+            const sum1 = x.reduce((a, b) => a + b, 0);
+            const sum2 = y.reduce((a, b) => a + b, 0);
+            const sum1Sq = x.reduce((a, b) => a + b * b, 0);
+            const sum2Sq = y.reduce((a, b) => a + b * b, 0);
+            const pSum = x.map((xi, i) => xi * y[i]).reduce((a, b) => a + b, 0);
+            const num = pSum - (sum1 * sum2 / n);
+            const den = Math.sqrt((sum1Sq - sum1 * sum1 / n) * (sum2Sq - sum2 * sum2 / n));
+            return num / den;
+        }
+
+        // Implementación de análisis de segmentación de productos
+        function analyzeSegmentation() {
+            const segmentationContainer = document.createElement('div');
+            segmentationContainer.innerHTML = '<h3>Análisis de Segmentación de Productos</h3>';
+            
+            const segments = {
+                'Gama alta': products.filter(p => p.ownPrice > 1000),
+                'Gama media': products.filter(p => p.ownPrice >= 100 && p.ownPrice <= 1000),
+                'Gama baja': products.filter(p => p.ownPrice < 100)
+            };
+            
+            for (const [segment, segmentProducts] of Object.entries(segments)) {
+                const segmentElement = document.createElement('p');
+                segmentElement.textContent = `${segment}: ${segmentProducts.length} productos`;
+                segmentationContainer.appendChild(segmentElement);
+            }
+
+            document.getElementById('analisisTab').appendChild(segmentationContainer);
+        }
+
+        // Implementación de análisis de rendimiento de productos
+        function analyzeProductPerformance() {
+            const performanceContainer = document.createElement('div');
+            performanceContainer.innerHTML = '<h3>Análisis de Rendimiento de Productos</h3>';
+            
+            products.forEach(product => {
+                const competitorAvgPrice = (product.competitor1Price + product.competitor2Price) / 2;
+                const priceDifference = ((product.ownPrice - competitorAvgPrice) / competitorAvgPrice) * 100;
+                let performance;
+                
+                if (priceDifference < -10) {
+                    performance = 'Subvalorado';
+                } else if (priceDifference > 10) {
+                    performance = 'Sobrevalorado';
+                } else {
+                    performance = 'Competitivo';
+                }
+                
+                const performanceElement = document.createElement('p');
+                performanceElement.textContent = `${product.name}: ${performance} (${priceDifference.toFixed(2)}% diferencia con el promedio de competidores)`;
+                performanceContainer.appendChild(performanceElement);
+            });
+
+            document.getElementById('analisisTab').appendChild(performanceContainer);
+        }
+
+        // Implementación de tutorial interactivo
+        function startTutorial() {
+            const steps = [
+                { element: '#productosTab', content: 'Aquí puedes agregar y ver tus productos.' },
+                { element: '#analisisTab', content: 'En esta sección encontrarás análisis detallados de tus productos y competidores.' },
+                { element: '#prediccionesTab', content: 'Aquí puedes ver predicciones de precios y ventas.' },
+                { element: '#competidoresTab', content: 'Analiza a tus competidores y busca productos similares.' },
+                { element: '#configuracionTab', content: 'Configura alertas y preferencias de notificación.' }
+            ];
+
+            let currentStep = 0;
+
+            function showTutorialStep() {
+                const overlay = document.createElement('div');
+                overlay.className = 'tutorial-overlay';
+                const content = document.createElement('div');
+                content.className = 'tutorial-content';
+                content.innerHTML = `
+                    <h2>Tutorial</h2>
+                    <p>${steps[currentStep].content}</p>
+                    <button id="nextStep">Siguiente</button>
+                    <button id="skipTutorial">Saltar Tutorial</button>
+                `;
+                overlay.appendChild(content);
+                document.body.appendChild(overlay);
+
+                document.getElementById('nextStep').addEventListener('click', () => {
+                    document.body.removeChild(overlay);
+                    currentStep++;
+                    if (currentStep < steps.length) {
+                        showTutorialStep();
+                    }
+                });
+
+                document.getElementById('skipTutorial').addEventListener('click', () => {
+                    document.body.removeChild(overlay);
+                });
+
+                const element = document.querySelector(steps[currentStep].element);
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            showTutorialStep();
+        }
+
+        // Inicialización
+        loadProducts();
+        updateAlertProductSelect();
+        checkPriceAlerts();
+        analyzeTrends();
+        recommendPrices();
+        analyzeProfit();
+        analyzeMarketShare();
+        analyzePriceElasticity();
+        analyzeCorrelation();
+        analyzeSegmentation();
+        analyzeProductPerformance();
+        updateSentimentAnalysis();
+        predictPrices();
+        analyzeSeasonality();
+        projectSales();
+        analyzeCompetitors();
+
+        // Mostrar tutorial al cargar la página por primera vez
+        if (!localStorage.getItem('tutorialShown')) {
+            startTutorial();
+            localStorage.setItem('tutorialShown', 'true');
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+</body>
+</html>

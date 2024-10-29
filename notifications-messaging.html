@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajería de Notificaciones</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/notifications-messaging.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/notifications-messaging">Mensajería de Notificaciones</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Notificaciones</h1>
+        
+        <!-- Lista de Notificaciones -->
+        <div class="notifications-container">
+            <!-- Las notificaciones se cargarán dinámicamente aquí -->
+        </div>
+
+        <!-- Botones de Acción para Notificaciones -->
+        <button id="mark-as-read" class="btn-secondary">Marcar Como Leído</button>
+        <button id="delete-notification" class="btn-danger">Eliminar Notificación</button>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/notifications-messaging.js"></script>
+</body>
+</html>
+

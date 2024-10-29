@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generación de Informes</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/reports.css">
+    <!-- Incluir jsPDF y SheetJS para funcionalidad de informes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/reports">Generar Informes</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Generación de Informes</h1>
+        
+        <!-- Controles de Reportes -->
+        <div class="report-controls">
+            <button id="add-data" class="btn-primary">Agregar Datos al Informe</button>
+            <button id="generate-pdf" class="btn-secondary">Generar Informe en PDF</button>
+            <button id="export-excel" class="btn-secondary">Exportar a Excel</button>
+        </div>
+
+        <!-- Lista de Datos Seleccionados -->
+        <div id="selected-data-list">
+            <!-- Los datos seleccionados se mostrarán aquí -->
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/reports.js"></script>
+</body>
+</html>

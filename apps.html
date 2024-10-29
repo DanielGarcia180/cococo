@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pro - Compilación de Aplicaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #333333;
+            --card-bg: #ffffff;
+            --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --header-bg: #ffffff;
+            --sidebar-bg: #f1f3f5;
+            --sidebar-text: #495057;
+            --hover-bg: #e9ecef;
+            --primary-color: #4dabf7;
+            --secondary-color: #748ffc;
+        }
+        .dark {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --card-bg: #343a40;
+            --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            --header-bg: #1a1d20;
+            --sidebar-bg: #2a2e33;
+            --sidebar-text: #ced4da;
+            --hover-bg: #495057;
+            --primary-color: #339af0;
+            --secondary-color: #5c7cfa;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            transition: transform 0.3s ease-in-out, background-color 0.3s, color 0.3s;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .card {
+            background-color: var(--card-bg);
+            box-shadow: var(--card-shadow);
+            transition: box-shadow 0.3s ease-in-out, background-color 0.3s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            background-color: var(--header-bg);
+            transition: background-color 0.3s;
+        }
+        .feature-icon {
+            font-size: 1.2em;
+            margin-right: 0.3em;
+        }
+    </style>
+</head>
+<body class="transition-colors duration-300">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar w-64 min-h-screen p-4 fixed left-0 top-0 z-50 shadow-lg closed">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold">Data Pro</h2>
+            <button id="closeSidebar" class="text-2xl">&times;</button>
+        </div>
+        <nav>
+            <a href="home.html" class="flex items-center p-2 rounded-lg mb-2 hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="fas fa-home mr-3"></i> Inicio
+            </a>
+            <a href="geospatial.html" class="flex items-center p-2 rounded-lg mb-2 hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="fas fa-map-marked-alt mr-3"></i> Análisis Geoespacial
+            </a>
+            <a href="apps.html" class="flex items-center p-2 rounded-lg mb-2 hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="fas fa-th mr-3"></i> Apps
+            </a>
+            <a href="analytics.html" class="flex items-center p-2 rounded-lg mb-2 hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="fas fa-chart-bar mr-3"></i> Análisis
+            </a>
+            <a href="settings.html" class="flex items-center p-2 rounded-lg mb-2 hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="fas fa-cog mr-3"></i> Configuración
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main content -->
+    <div class="ml-0 transition-all duration-300">
+        <header class="shadow-sm z-10">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <button id="sidebarToggle" class="text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="text-2xl font-semibold">Compilación de Aplicaciones</h1>
+                <button id="darkModeToggle" class="text-2xl">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <p class="mb-8 text-center max-w-3xl mx-auto">
+                Explora nuestra colección de herramientas avanzadas para análisis de datos y modelos predictivos. Cada aplicación está diseñada para ayudarte a obtener insights valiosos y tomar decisiones basadas en datos.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="appGrid">
+                <!-- App cards will be dynamically inserted here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // App data
+        const apps = [
+            { id: 'geospatial', name: 'Análisis Geoespacial', icon: 'fa-map-marked-alt', description: 'Visualiza y analiza datos geográficos con mapas interactivos, mapas de calor y análisis de ubicación.', features: [{ icon: 'fa-layer-group', text: 'Mapas de Calor' }, { icon: 'fa-chart-area', text: 'Análisis Regional' }], link: 'geospatial.html' },
+            { id: 'arima', name: 'Análisis ARIMA', icon: 'fa-chart-line', description: 'Predicción de series temporales utilizando modelos ARIMA para identificar patrones y tendencias.', features: [{ icon: 'fa-clock', text: 'Series Temporales' }, { icon: 'fa-forward', text: 'Predicción' }], link: 'arima.html' },
+            { id: 'monte-carlo', name: 'Simulación Monte Carlo', icon: 'fa-random', description: 'Realiza simulaciones basadas en probabilidad para análisis de riesgos y toma de decisiones.', features: [{ icon: 'fa-percentage', text: 'Probabilidad' }, { icon: 'fa-shield-alt', text: 'Riesgos' }], link: 'monte-carlo.html' },
+            { id: 'machine-learning', name: 'Machine Learning', icon: 'fa-brain', description: 'Modelos de aprendizaje automático para clasificación y predicción de datos.', features: [{ icon: 'fa-robot', text: 'IA' }, { icon: 'fa-code-branch', text: 'Predicción' }], link: 'machine-learning.html' },
+            { id: 'regression', name: 'Análisis de Regresión', icon: 'fa-square-root-alt', description: 'Análisis estadístico avanzado para predicciones basadas en múltiples variables.', features: [{ icon: 'fa-calculator', text: 'Estadística' }, { icon: 'fa-chart-bar', text: 'Variables' }], link: 'regression.html' },
+            { id: 'econometrics', name: 'Modelos Econométricos', icon: 'fa-chart-pie', description: 'Análisis económico avanzado con variables macroeconómicas y financieras.', features: [{ icon: 'fa-dollar-sign', text: 'Economía' }, { icon: 'fa-balance-scale', text: 'Finanzas' }], link: 'econometrics.html' },
+            { id: 'business-scenarios', name: 'Simulador de Escenarios de Negocio', icon: 'fa-briefcase', description: 'Realiza simulaciones avanzadas para análisis de escenarios empresariales con variables económicas y resultados proyectados.', features: [{ icon: 'fa-chart-line', text: 'Proyecciones' }, { icon: 'fa-tasks', text: 'Toma de Decisiones' }], link: 'scenario-simulation.html' },
+            { id: 'competition-analysis', name: 'Análisis de Competencia', icon: 'fa-bullseye', description: 'Obtén información detallada sobre los competidores en tu sector y toma decisiones estratégicas basadas en datos.', features: [{ icon: 'fa-chess', text: 'Estrategia' }, { icon: 'fa-trophy', text: 'Competitividad' }], link: 'analisis_competencia.html' },
+            { id: 'product-profitability', name: 'Análisis de Rentabilidad por Producto', icon: 'fa-tags', description: 'Análisis avanzado para identificar los productos más y menos rentables, optimizando la toma de decisiones comerciales.', features: [{ icon: 'fa-box', text: 'Productos' }, { icon: 'fa-chart-pie', text: 'Rentabilidad' }], link: 'Análisis_de_Rentabilidad_por_Producto.html' },
+            { id: 'external-apis', name: 'APIs Externas', icon: 'fa-plug', description: 'Integración con fuentes de datos externas para análisis en tiempo real.', features: [{ icon: 'fa-cloud-download-alt', text: 'Datos' }, { icon: 'fa-sync', text: 'Tiempo Real' }], link: 'apis.html' },
+            { id: 'unstructured-data', name: 'Datos No Estructurados', icon: 'fa-file-alt', description: 'Procesamiento y análisis de datos de documentos y fuentes no estructuradas.', features: [{ icon: 'fa-file-pdf', text: 'PDFs' }, { icon: 'fa-font', text: 'Texto' }], link: 'unstructured-data.html' },
+        ];
+
+        // Populate app grid
+        const appGrid = document.getElementById('appGrid');
+        apps.forEach(app => {
+            const card = document.createElement('div');
+            card.className = 'card rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300';
+            card.innerHTML = `
+                <div class="bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-900 p-4">
+                    <h3 class="flex items-center text-lg font-semibold text-blue-800 dark:text-blue-100">
+                        <i class="fas ${app.icon} mr-2"></i>
+                        ${app.name}
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <p class="text-sm mb-4">${app.description}</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${app.features.map(feature => `
+                            <span class="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                <i class="fas ${feature.icon} feature-icon"></i>${feature.text}
+                            </span>
+                        `).join('')}
+                    </div>
+                    <a href="${app.link}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 transition-colors duration-300">
+                        Ver Modelo
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            `;
+            appGrid.appendChild(card);
+        });
+
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const content = document.querySelector('.ml-0');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('closed');
+            content.classList.toggle('ml-64');
+        });
+
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.add('closed');
+            content.classList.remove('ml-64');
+        });
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            const isDarkMode = body.classList.contains('dark');
+            darkModeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+    </script>
+</body>
+</html>

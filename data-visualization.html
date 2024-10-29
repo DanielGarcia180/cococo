@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización de Datos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/data-visualization.css">
+    <!-- Librerías de visualización -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/visualization">Visualización</a></li>
+            <li><a href="/datasets">Conjuntos de Datos</a></li>
+            <li><a href="/templates">Plantillas</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Visualización de Datos</h1>
+            <div class="header-actions">
+                <button id="save-visualization" class="btn-primary">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <button id="share-visualization" class="btn-secondary">
+                    <i class="fas fa-share"></i> Compartir
+                </button>
+                <button id="export-visualization" class="btn-secondary">
+                    <i class="fas fa-download"></i> Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel de Control -->
+        <div class="control-panel">
+            <!-- Carga de Datos -->
+            <div class="data-section">
+                <h3>Datos</h3>
+                <div class="data-controls">
+                    <input type="file" id="data-input" accept=".csv,.xlsx,.json,.xml" multiple>
+                    <button id="load-data" class="btn-primary">Cargar Datos</button>
+                    <button id="clear-data" class="btn-secondary">Limpiar</button>
+                </div>
+                <div id="data-preview"></div>
+            </div>
+
+            <!-- Configuración de Visualización -->
+            <div class="visualization-config">
+                <h3>Configuración</h3>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label for="chart-type">Tipo de Gráfico:</label>
+                        <select id="chart-type">
+                            <option value="line">Líneas</option>
+                            <option value="bar">Barras</option>
+                            <option value="scatter">Dispersión</option>
+                            <option value="pie">Circular</option>
+                            <option value="radar">Radar</option>
+                            <option value="bubble">Burbuja</option>
+                            <option value="heatmap">Mapa de Calor</option>
+                        </select>
+                    </div>
+                    <div class="config-item">
+                        <label for="x-axis">Eje X:</label>
+                        <select id="x-axis"></select>
+                    </div>
+                    <div class="config-item">
+                        <label for="y-axis">Eje Y:</label>
+                        <select id="y-axis"></select>
+                    </div>
+                    <div class="config-item">
+                        <label for="group-by">Agrupar por:</label>
+                        <select id="group-by"></select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters-section">
+                <h3>Filtros</h3>
+                <form id="filters-form">
+                    <div id="filters-container">
+                        <!-- Los filtros se generarán dinámicamente -->
+                    </div>
+                    <button type="button" id="add-filter" class="btn-secondary">
+                        <i class="fas fa-plus"></i> Agregar Filtro
+                    </button>
+                    <button type="submit" class="btn-primary">Aplicar Filtros</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Área de Visualización -->
+        <div class="visualization-area">
+            <!-- Pestañas de Vista -->
+            <div class="view-tabs">
+                <button class="tab-button active" data-view="chart">
+                    <i class="fas fa-chart-bar"></i> Gráfico
+                </button>
+                <button class="tab-button" data-view="table">
+                    <i class="fas fa-table"></i> Tabla
+                </button>
+                <button class="tab-button" data-view="stats">
+                    <i class="fas fa-calculator"></i> Estadísticas
+                </button>
+            </div>
+
+            <!-- Contenido de las Vistas -->
+            <div class="view-content">
+                <!-- Vista de Gráfico -->
+                <div id="chart-view" class="view-panel active">
+                    <canvas id="main-chart"></canvas>
+                </div>
+
+                <!-- Vista de Tabla -->
+                <div id="table-view" class="view-panel">
+                    <div class="table-controls">
+                        <input type="text" id="table-search" placeholder="Buscar...">
+                        <select id="table-page-size">
+                            <option value="10">10 por página</option>
+                            <option value="25">25 por página</option>
+                            <option value="50">50 por página</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <!-- La tabla se generará dinámicamente -->
+                    </div>
+                    <div class="table-pagination">
+                        <!-- La paginación se generará dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Vista de Estadísticas -->
+                <div id="stats-view" class="view-panel">
+                    <div class="stats-grid">
+                        <!-- Las estadísticas se generarán dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modales -->
+        <!-- Modal de Guardar -->
+        <div id="save-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Guardar Visualización</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="save-form">
+                        <div class="form-group">
+                            <label for="viz-name">Nombre:</label>
+                            <input type="text" id="viz-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="viz-description">Descripción:</label>
+                            <textarea id="viz-description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="save-as-template">
+                                Guardar como plantilla
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" form="save-form" class="btn-primary">Guardar</button>
+                    <button class="btn-secondary modal-close">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Compartir -->
+        <div id="share-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Compartir Visualización</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="share-options">
+                        <button class="btn-secondary">
+                            <i class="fas fa-link"></i> Copiar Enlace
+                        </button>
+                        <button class="btn-secondary">
+                            <i class="fas fa-envelope"></i> Enviar por Email
+                        </button>
+                        <button class="btn-secondary">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/data-processor.js"></script>
+    <script src="../js/chart-manager.js"></script>
+    <script src="../js/data-visualization.js"></script>
+</body>
+</html>

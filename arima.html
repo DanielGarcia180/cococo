@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicciones Aritméticas Avanzadas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --primary-color: #3b82f6;
+            --secondary-color: #e0f2fe;
+            --accent-color: #1e40af;
+            --border-color: #e0e0e0;
+        }
+
+        .dark-theme {
+            --bg-color: #1a202c;
+            --text-color: #e2e8f0;
+            --primary-color: #4299e1;
+            --secondary-color: #2d3748;
+            --accent-color: #90cdf4;
+            --border-color: #4a5568;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            margin-top: 80px;
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: var(--accent-color);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"], input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        #result, #fileContent {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        #chart {
+            margin-top: 20px;
+            background-color: var(--bg-color);
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            z-index: 998;
+            top: 0;
+            left: -250px;
+            background-color: var(--secondary-color);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: var(--accent-color);
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+            color: var(--text-color);
+        }
+
+        .openbtn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            padding: 10px 15px;
+            border: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            border-radius: 5px;
+        }
+
+        .openbtn:hover {
+            opacity: 0.8;
+        }
+
+        #themeToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="home.html">Home</a>
+        <a href="apps.html">Apps</a>
+        <a href="settings.html"><i class="fas fa-cog"></i> Configuración</a>
+        <a href="history.html">Historial</a>
+    </div>
+
+    <button class="openbtn" onclick="openNav()">&#9776; Menú</button>
+    <button id="themeToggle" onclick="toggleTheme()">Cambiar Tema</button>
+
+    <div class="container">
+        <h1>Predicciones Aritméticas Avanzadas</h1>
+        
+        <div class="input-group">
+            <h2>Entrada Manual</h2>
+            <label for="start">Término Inicial:</label>
+            <input type="number" id="start" value="0">
+            <label for="difference">Diferencia Común:</label>
+            <input type="number" id="difference" value="1">
+            <label for="terms">Número de Términos:</label>
+            <input type="number" id="terms" value="10">
+            <button id="generateButton" onclick="generateSequence()">Generar Predicción</button>
+        </div>
+
+        <div class="input-group">
+            <h2>Cargar Archivo</h2>
+            <input type="file" id="fileInput" accept=".pdf,.xlsx,.xls">
+            <button onclick="processFile()">Procesar Archivo</button>
+        </div>
+
+        <div id="fileContent"></div>
+        <div id="result"></div>
+        <canvas id="chart"></canvas>
+
+        <div class="input-group">
+            <button id="downloadButton" onclick="downloadResults()">Descargar Resultados</button>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+
+        function generateSequence(customData) {
+            const start = customData ? customData[0] : parseInt(document.getElementById('start').value);
+            const difference = customData ? (customData[1] - customData[0]) : parseInt(document.getElementById('difference').value);
+            const terms = customData ? customData.length : parseInt(document.getElementById('terms').value);
+
+            const sequence = Array.from({length: terms}, (_, i) => start + i * difference);
+            const prediction = start + terms * difference;
+
+            displayResults(sequence, prediction);
+            updateChart(sequence);
+
+            sendToHistory({
+                title: 'Generated Arithmetic Sequence',
+                content: JSON.stringify({sequence, prediction})
+            });
+        }
+
+        function displayResults(sequence, prediction) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h3>Secuencia Generada:</h3>
+                <p>${sequence.join(', ')}</p>
+                <h3>Predicción del Siguiente Término:</h3>
+                <p>${prediction}</p>
+            `;
+        }
+
+        function updateChart(data) {
+            const ctx = document.getElementById('chart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map((_, index) => `Término ${index + 1}`),
+                    datasets: [{
+                        label: 'Secuencia Aritmética',
+                        data: data,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Gráfica de la Secuencia Aritmética',
+                            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                        },
+                        legend: {
+                            labels: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Términos',
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                            },
+                            ticks: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Valor',
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                            },
+                            ticks: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Por favor, seleccione un archivo.');
+                return;
+            }
+
+            let data;
+            if (file.type === 'application/pdf') {
+                data = await extractDataFromPDF(file);
+            } else if (file.type.includes('sheet') || file.name.endsWith('.xls') || file.name.endsWith('.xlsx')) {
+                data = await extractDataFromExcel(file);
+            } else {
+                alert('Formato de archivo no soportado.');
+                return;
+            }
+
+            document.getElementById('fileContent').innerHTML = `<h3>Datos Extraídos:</h3><p>${data.join(', ')}</p>`;
+            generateSequence(data);
+
+            sendToHistory({
+                title: `Processed File: ${file.name}`,
+                content: JSON.stringify(data)
+            });
+        }
+
+        async function extractDataFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+            let extractedText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                extractedText += textContent.items.map(item => item.str).join(' ');
+            }
+            const numbers = extractedText.match(/\d+(\.\d+)?/g);
+            return numbers ? numbers.map(Number) : [];
+        }
+
+        async function extractDataFromExcel(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, {type: 'array'});
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const data = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+            return data.flat().filter(cell => typeof cell === 'number');
+        }
+
+        function openNav() {
+            document.getElementById("mySidebar").style.left = "0";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidebar").style.left = "-250px";
+        }
+
+        function downloadResults() {
+            const resultContent = document.getElementById('result').innerText;
+            const blob = new Blob([resultContent], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'arithmetic_prediction_results.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            sendToHistory({
+                title: 'Downloaded Arithmetic Prediction Results',
+                content: resultContent
+            });
+        }
+
+        function sendToHistory(document) {
+            let history = JSON.parse(localStorage.getItem('arithmeticHistory')) || [];
+            history.push({
+                type: 'Arithmetic Prediction',
+                title: document.title,
+                content: document.content,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('arithmeticHistory', JSON.stringify(history));
+            console.log('Document successfully added to history');
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+            updateChart(chart.data.datasets[0].data);
+        }
+
+        // Initialize
+        generateSequence();
+
+        // Event listeners for generate and download buttons
+        document.getElementById('generateButton').addEventListener('click', function() {
+            const sequence = document.getElementById('result').innerText;
+            sendToHistory({
+                title: 'Generated Arithmetic Sequence',
+                content: sequence
+            });
+        });
+
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            const resultContent = document.getElementById('result').innerText;
+            sendToHistory({
+                title: 'Downloaded Arithmetic Prediction Results',
+                content: resultContent
+            });
+        });
+
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Documentos Profesionales</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark-mode .bg-white {
+            background-color: #2d3748;
+        }
+        .dark-mode .text-gray-700 {
+            color: #e2e8f0;
+        }
+        .dark-mode .border-gray-200 {
+            border-color: #4a5568;
+        }
+        .dark-mode .bg-gray-100 {
+            background-color: #2d3748;
+        }
+        .sidebar {
+            height: calc(100vh - 4rem);
+        }
+        #editor {
+            min-height: 200px;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .dark-mode #editor {
+            border-color: #4a5568;
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        @media print {
+            body {
+                font-family: 'Roboto', sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+            .pdf-page {
+                page-break-after: always;
+                position: relative;
+                width: 210mm;
+                height: 297mm;
+                padding: 20mm;
+                box-sizing: border-box;
+            }
+            .pdf-header {
+                position: running(header);
+                width: 100%;
+                text-align: center;
+                font-size: 10px;
+                color: #888;
+            }
+            .pdf-footer {
+                position: running(footer);
+                width: 100%;
+                text-align: center;
+                font-size: 10px;
+                color: #888;
+            }
+            .pdf-content {
+                font-size: 12px;
+                line-height: 1.6;
+            }
+            .pdf-title {
+                font-size: 28px;
+                font-weight: 700;
+                text-align: center;
+                color: #2c3e50;
+                margin-bottom: 30px;
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 10px;
+            }
+            .pdf-subtitle {
+                font-size: 20px;
+                font-weight: 500;
+                color: #34495e;
+                margin-top: 20px;
+                margin-bottom: 10px;
+            }
+            .pdf-paragraph {
+                margin-bottom: 10px;
+                text-align: justify;
+            }
+            .pdf-list {
+                margin-left: 20px;
+                margin-bottom: 10px;
+            }
+            .pdf-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 10px;
+            }
+            .pdf-table th, .pdf-table td {
+                border: 1px solid #bdc3c7;
+                padding: 8px;
+                text-align: left;
+            }
+            .pdf-table th {
+                background-color: #ecf0f1;
+                font-weight: 500;
+            }
+            .pdf-cover {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+            }
+            .pdf-cover-title {
+                font-size: 36px;
+                font-weight: 700;
+                color: #2c3e50;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .pdf-cover-subtitle {
+                font-size: 24px;
+                font-weight: 400;
+                color: #34495e;
+                margin-bottom: 40px;
+                text-align: center;
+            }
+            .pdf-cover-date {
+                font-size: 18px;
+                color: #7f8c8d;
+            }
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            @page :first {
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 transition-colors duration-200">
+    <div class="flex">
+        <aside class="sidebar w-64 bg-white dark:bg-gray-800 shadow-md">
+            <div class="px-4 py-5 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-white">Data Pro</h2>
+            </div>
+            <nav class="mt-5">
+                <a href="#" class="group flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <svg class="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500 dark:text-gray-300 dark:group-hover:text-gray-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Inicio
+                </a>
+                <a href="#" class="group flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <svg class="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500 dark:text-gray-300 dark:group-hover:text-gray-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Documentos
+                </a>
+                <a href="#" class="group flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <svg class="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500 dark:text-gray-300 dark:group-hover:text-gray-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Análisis
+                </a>
+                <a href="history.html" class="group flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <svg class="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500 dark:text-gray-300 dark:group-hover:text-gray-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Historial
+                </a>
+                <button id="darkModeToggle" class="w-full group flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <svg class="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500 dark:text-gray-300 dark:group-hover:text-gray-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    Cambiar Tema
+                </button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-6">
+            <h1 class="text-3xl font-semibold mb-6">Generador de Documentos Profesionales</h1>
+            
+            <div class="bg-white shadow-md rounded-lg p-6 dark:bg-gray-800">
+                <div class="mb-6">
+                    <label for="template" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Seleccionar Plantilla</label>
+                    <select id="template" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Seleccione una plantilla</option>
+                        <option value="informe">Informe</option>
+                        <option value="propuesta">Propuesta</option>
+                        <option value="contrato">Contrato</option>
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Título del Documento</label>
+                    <input type="text" id="title" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Ingrese el título del documento">
+                </div>
+
+                <div class="mb-6">
+                    <label for="editor" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contenido del Documento</label>
+                    <div id="editor" contenteditable="true" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
+                </div>
+
+                <div class="flex justify-between">
+                    <button onclick="generateDocument()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Generar Documento
+                    </button>
+                    <button onclick="saveDocument()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Guardar Documento
+                    </button>
+                    <button onclick="downloadPDF()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Descargar PDF
+                    </button>
+                    <button onclick="clearDocument()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                        Limpiar Formulario
+                    </button>
+                </div>
+            </div>
+
+            <div id="preview" class="mt-8 bg-white shadow-md rounded-lg p-6 dark:bg-gray-800 hidden">
+                <h2 class="text-2xl font-semibold mb-4">Vista Previa del Documento</h2>
+                <div id="previewContent" class="prose dark:prose-invert max-w-none"></div>
+            </div>
+
+            <div id="savedDocuments" class="mt-8 bg-white shadow-md rounded-lg p-6 dark:bg-gray-800">
+                <h2 class="text-2xl font-semibold mb-4">Documentos Guardados</h2>
+                <div id="savedDocumentsList"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Plantillas
+        const templates = {
+            informe: `
+                <h2 class="pdf-subtitle">1. Introducción</h2>
+                <p class="pdf-paragraph">[Escriba la introducción aquí]</p>
+                <h2 class="pdf-subtitle">2. Objetivos</h2>
+                <ul class="pdf-list">
+                    <li>[Objetivo 1]</li>
+                    <li>[Objetivo 2]</li>
+                    <li>[Objetivo 3]</li>
+                </ul>
+                <h2 class="pdf-subtitle">3. Metodología</h2>
+                <p class="pdf-paragraph">[Describa la metodología utilizada]</p>
+                <h2 class="pdf-subtitle">4. Resultados</h2>
+                <p class="pdf-paragraph">[Presente los resultados obtenidos]</p>
+                <h2 class="pdf-subtitle">5. Análisis</h2>
+                <p class="pdf-paragraph">[Analice los resultados]</p>
+                <h2 class="pdf-subtitle">6. Conclusiones</h2>
+                <p class="pdf-paragraph">[Escriba las conclusiones]</p>
+                <h2 class="pdf-subtitle">7. Recomendaciones</h2>
+                <p class="pdf-paragraph">[Proporcione recomendaciones basadas en el análisis]</p>
+            `,
+            propuesta: `
+                <h2 class="pdf-subtitle">1. Resumen Ejecutivo</h2>
+                <p class="pdf-paragraph">[Breve descripción de la propuesta]</p>
+                <h2 class="pdf-subtitle">2. Antecedentes</h2>
+                <p class="pdf-paragraph">[Contexto y justificación de la propuesta]</p>
+                <h2 class="pdf-subtitle">3. Objetivos</h2>
+                <ul class="pdf-list">
+                    <li>[Objetivo 1]</li>
+                    <li>[Objetivo 2]</li>
+                    <li>[Objetivo 3]</li>
+                </ul>
+                <h2 class="pdf-subtitle">4. Alcance del Proyecto</h2>
+                <p class="pdf-paragraph">[Defina el alcance y los límites del proyecto]</p>
+                <h2 class="pdf-subtitle">5. Metodología</h2>
+                <p class="pdf-paragraph">[Describa la metodología a utilizar]</p>
+                <h2 class="pdf-subtitle">6. Cronograma</h2>
+                <p class="pdf-paragraph">[Incluya un cronograma tentativo]</p>
+                <h2 class="pdf-subtitle">7. Presupuesto</h2>
+                <p class="pdf-paragraph">[Detalle el presupuesto estimado]</p>
+                <h2 class="pdf-subtitle">8. Equipo de Trabajo</h2>
+                <p class="pdf-paragraph">[Describa el equipo que llevará a cabo el proyecto]</p>
+                <h2 class="pdf-subtitle">9. Conclusión</h2>
+                <p class="pdf-paragraph">[Resuma los puntos clave de la propuesta]</p>
+            `,
+            contrato: `
+                <h2 class="pdf-subtitle">1. Partes Contratantes</h2>
+                <p class="pdf-paragraph">Entre [Nombre de la Primera Parte] y [Nombre de la Segunda Parte]</p>
+                <h2 class="pdf-subtitle">2. Objeto del Contrato</h2>
+                <p class="pdf-paragraph">[Describa el propósito principal del contrato]</p>
+                <h2 class="pdf-subtitle">3. Duración</h2>
+                <p class="pdf-paragraph">[Especifique la duración o vigencia del contrato]</p>
+                <h2 class="pdf-subtitle">4. Obligaciones de las Partes</h2>
+                <h3 class="pdf-subtitle">4.1 Obligaciones de la Primera Parte</h3>
+                <ul class="pdf-list">
+                    <li>[Obligación 1]</li>
+                    <li>[Obligación 2]</li>
+                    <li>[Obligación 3]</li>
+                </ul>
+                <h3 class="pdf-subtitle">4.2 Obligaciones de la Segunda Parte</h3>
+                <ul class="pdf-list">
+                    <li>[Obligación 1]</li>
+                    <li>[Obligación 2]</li>
+                    <li>[Obligación 3]</li>
+                </ul>
+                <h2 class="pdf-subtitle">5. Compensación</h2>
+                <p class="pdf-paragraph">[Detalle los términos de pago o compensación]</p>
+                <h2 class="pdf-subtitle">6. Confidencialidad</h2>
+                <p class="pdf-paragraph">[Incluya cláusulas de confidencialidad si es necesario]</p>
+                <h2 class="pdf-subtitle">7. Terminación</h2>
+                <p class="pdf-paragraph">[Especifique las condiciones para la terminación del contrato]</p>
+                <h2 class="pdf-subtitle">8. Ley Aplicable y Jurisdicción</h2>
+                <p class="pdf-paragraph">[Indique la ley aplicable y la jurisdicción para resolver disputas]</p>
+                <h2 class="pdf-subtitle">9. Firmas</h2>
+                <p class="pdf-paragraph">
+                    ____________________________    ____________________________<br>
+                    [Nombre de la Primera Parte]    [Nombre de la Segunda Parte]<br>
+                    Fecha: _____________________    Fecha: _____________________
+                </p>
+            `
+        };
+
+        let documentGenerated = false;
+
+        // Cargar plantilla
+        document.getElementById('template').addEventListener('change', function() {
+            const selectedTemplate = this.value;
+            if (templates[selectedTemplate]) {
+                document.getElementById('editor').innerHTML = templates[selectedTemplate];
+            }
+        });
+
+        // Generar documento
+        function generateDocument() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('editor').innerHTML;
+            
+            if (!title || !content) {
+                alert('Por favor, ingrese un título y contenido para el documento.');
+                return;
+            }
+
+            const preview = document.getElementById('preview');
+            const previewContent = document.getElementById('previewContent');
+            previewContent.innerHTML = `
+                <div class="pdf-page">
+                    <div class="pdf-cover">
+                        <h1 class="pdf-cover-title">${title}</h1>
+                        <p class="pdf-cover-subtitle">Documento Generado por Data Pro</p>
+                        <p class="pdf-cover-date">${new Date().toLocaleDateString()}</p>
+                    </div>
+                </div>
+                <div class="pdf-page">
+                    <div class="pdf-header">
+                        ${title} - Generado por Data Pro
+                    </div>
+                    <div class="pdf-content">
+                        <h1 class="pdf-title">${title}</h1>
+                        ${content}
+                    </div>
+                    <div class="pdf-footer">
+                        Página <span class="pageNumber"></span> de <span class="totalPages"></span>
+                    </div>
+                </div>
+            `;
+            preview.classList.remove('hidden');
+            documentGenerated = true;
+
+            // Guardar automáticamente el documento generado
+            saveDocument();
+        }
+
+        // Guardar documento
+        function saveDocument() {
+            if (!documentGenerated) {
+                alert('Por favor, genere el documento antes de guardarlo.');
+                return;
+            }
+
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('editor').innerHTML;
+            const savedDocs = JSON.parse(localStorage.getItem('savedDocuments')) || [];
+            const newDoc = {title, content, date: new Date().toLocaleString()};
+            savedDocs.push(newDoc);
+            localStorage.setItem('savedDocuments', JSON.stringify(savedDocs));
+            displaySavedDocuments();
+            sendToHistory(newDoc);
+            alert('Documento guardado exitosamente.');
+        }
+
+        // Enviar documento a history.html
+        function sendToHistory(doc) {
+            // Simulamos el envío a history.html guardando en localStorage
+            const historyDocs = JSON.parse(localStorage.getItem('historyDocuments')) || [];
+            historyDocs.push(doc);
+            localStorage.setItem('historyDocuments', JSON.stringify(historyDocs));
+        }
+
+        // Mostrar documentos guardados
+        function displaySavedDocuments() {
+            const savedDocs = JSON.parse(localStorage.getItem('savedDocuments')) || [];
+            const container = document.getElementById('savedDocumentsList');
+            container.innerHTML = '';
+            savedDocs.forEach((doc, index) => {
+                const docElement = document.createElement('div');
+                docElement.className = 'bg-gray-100 dark:bg-gray-700 p-4 rounded-md mb-4';
+                docElement.innerHTML = `
+                    <h3 class="text-lg font-semibold">${doc.title}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Guardado el: ${doc.date}</p>
+                    <div class="mt-2">
+                        <button onclick="loadDocument(${index})" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 mr-2">Cargar</button>
+                        <button onclick="deleteDocument(${index})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200">Eliminar</button>
+                    </div>
+                `;
+                container.appendChild(docElement);
+            });
+        }
+
+        // Cargar documento guardado
+        function loadDocument(index) {
+            const savedDocs = JSON.parse(localStorage.getItem('savedDocuments')) || [];
+            const doc = savedDocs[index];
+            document.getElementById('title').value = doc.title;
+            document.getElementById('editor').innerHTML = doc.content;
+            generateDocument();
+        }
+
+        // Eliminar documento guardado
+        function deleteDocument(index) {
+            const savedDocs = JSON.parse(localStorage.getItem('savedDocuments')) || [];
+            savedDocs.splice(index, 1);
+            localStorage.setItem('savedDocuments', JSON.stringify(savedDocs));
+            displaySavedDocuments();
+        }
+
+        // Limpiar documento actual
+        function clearDocument() {
+            document.getElementById('title').value = '';
+            document.getElementById('editor').innerHTML = '';
+            document.getElementById('preview').classList.add('hidden');
+            documentGenerated = false;
+        }
+
+        // Descargar PDF
+        function downloadPDF() {
+            if (!documentGenerated) {
+                alert('Por favor, genere el documento antes de descargarlo como PDF.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const element = document.getElementById('previewContent');
+            
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210; 
+                const pageHeight = 297;  
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+                let pageNumber = 1;
+
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    pageNumber++;
+                }
+
+                // Agregar números de página
+                for (let i = 1; i <= pageNumber; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.setTextColor(100);
+                    doc.text('Página ' + i + ' de ' + pageNumber, 95, 285);
+                }
+
+                doc.save('documento_profesional.pdf');
+            });
+        }
+
+        // Cambiar tema (modo oscuro)
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        });
+
+        // Verificar preferencia de tema guardada
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Cargar documentos guardados al iniciar
+        displaySavedDocuments();
+
+        // Actualizar vista previa en tiempo real
+        document.getElementById('editor').addEventListener('input', function() {
+            if (documentGenerated) {
+                generateDocument();
+            }
+        });
+        document.getElementById('title').addEventListener('input', function() {
+            if (documentGenerated) {
+                generateDocument();
+            }
+        });
+    </script>
+</body>
+</html>

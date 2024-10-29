@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en Tiempo Real</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/chatbox.css">
+    <!-- Incluir Socket.io para WebSockets -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/chat">Chat en Tiempo Real</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="chatbox">
+            <!-- Lista de Usuarios Conectados -->
+            <div class="users-panel">
+                <h3>Usuarios Conectados</h3>
+                <div id="users-list"></div>
+            </div>
+
+            <!-- Área de Chat -->
+            <div class="chat-area">
+                <!-- Mensajes -->
+                <div id="messages-container" class="messages-container">
+                    <!-- Los mensajes se cargarán aquí dinámicamente -->
+                </div>
+
+                <!-- Área de Vista Previa -->
+                <div id="preview-container" class="preview-container">
+                    <!-- Vista previa de archivos multimedia -->
+                </div>
+
+                <!-- Controles de Chat -->
+                <div class="chat-controls">
+                    <div class="input-group">
+                        <input type="text" id="message-input" placeholder="Escribe un mensaje...">
+                        <div class="attachment-controls">
+                            <input type="file" id="file-input" accept="image/*,video/*,audio/*">
+                            <button id="attach-file" class="btn-secondary">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                        </div>
+                        <button id="send-message" class="btn-primary">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Vista Previa de Multimedia -->
+    <div id="media-preview-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="media-preview"></div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/chatbox.js"></script>
+</body>
+</html>
+

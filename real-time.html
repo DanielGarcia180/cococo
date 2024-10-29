@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colaboración en Tiempo Real</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/real-time.css">
+    <!-- Incluir Socket.io para funcionalidad de WebSockets -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/real-time">Colaboración en Tiempo Real</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Colaboración en Tiempo Real</h1>
+        
+        <!-- Controles de Colaboración -->
+        <div class="real-time-controls">
+            <button id="share-analysis" class="btn-primary">Compartir Análisis</button>
+            <input type="text" id="message-input" placeholder="Escribe un mensaje...">
+            <button id="send-message" class="btn-secondary">Enviar Mensaje</button>
+        </div>
+
+        <!-- Área de Mensajes -->
+        <div id="message-area" class="message-area">
+            <!-- Los mensajes se mostrarán aquí -->
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/real-time.js"></script>
+</body>
+</html>

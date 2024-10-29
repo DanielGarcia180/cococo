@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataPyme - Análisis de Datos Interactivo para Pequeños Negocios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #1d1d1f;
+            --accent-color: #0071e3;
+            --text-color: #f5f5f7;
+            --bg-color: #000000;
+            --card-bg-color: #1c1c1e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        header {
+            background-color: rgba(29, 29, 31, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            color: var(--text-color);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        .nav-links li {
+            margin-left: 1rem;
+        }
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 980px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .btn:hover {
+            background: #0077ED;
+            transform: translateY(-3px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+        .btn-outline:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #86868b;
+        }
+        .features, .demo {
+            padding: 5rem 0;
+            position: relative;
+        }
+        .features h2, .demo h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .feature-card {
+            background: var(--card-bg-color);
+            padding: 2rem;
+            border-radius: 18px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255,255,255,0.1);
+        }
+        .feature-card h3 {
+            margin-bottom: 1rem;
+        }
+        .feature-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #333;
+        }
+        .feature-details.active {
+            display: block;
+        }
+        .interactive-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .demo-card {
+            background: var(--card-bg-color);
+            padding: 2rem;
+            border-radius: 18px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .demo-card h3 {
+            margin-bottom: 1rem;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .feature-grid, .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="interactiveBg" class="interactive-bg"></canvas>
+
+    <header>
+        <nav class="container">
+            <div class="logo">DataPyme</div>
+            <ul class="nav-links">
+                <li><a href="#features">Características</a></li>
+                <li><a href="#demo">Demo</a></li>
+                <li><a href="#contact">Contacto</a></li>
+                <li><a href="login-page.html" class="btn btn-outline">Iniciar sesión / Registrarse</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Transforma tu negocio<br>con el poder de los datos</h1>
+                <p>Descubre cómo el análisis inteligente puede impulsar el crecimiento de tu empresa</p>
+                <a href="#features" class="btn">Explora las posibilidades</a>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Características Principales</h2>
+                <div class="feature-grid">
+                    <div class="feature-card" data-feature="analisis">
+                        <h3>Análisis Predictivo</h3>
+                        <p>Anticipa tendencias y toma decisiones informadas.</p>
+                        <div class="feature-details">
+                            <p>Nuestro análisis predictivo utiliza algoritmos avanzados de machine learning para proyectar tendencias futuras basadas en tus datos históricos. Esto te permite:</p>
+                            <ul>
+                                <li>Prever la demanda de productos</li>
+                                <li>Optimizar niveles de inventario</li>
+                                <li>Identificar oportunidades de mercado</li>
+                            </ul>
+                            <a href="#" class="btn">Saber más</a>
+                        </div>
+                    </div>
+                    <div class="feature-card" data-feature="visualizacion">
+                        <h3>Visualización de Datos</h3>
+                        <p>Transforma datos complejos en gráficos comprensibles.</p>
+                        <div class="feature-details">
+                            <p>Nuestra plataforma de visualización de datos te permite:</p>
+                            <ul>
+                                <li>Crear dashboards interactivos</li>
+                                <li>Generar informes personalizados</li>
+                                <li>Compartir insights con tu equipo fácilmente</li>
+                            </ul>
+                            <a href="#" class="btn">Ver ejemplos</a>
+                        </div>
+                    </div>
+                    <div class="feature-card" data-feature="integracion">
+                        <h3>Integración Sencilla</h3>
+                        <p>Conecta fácilmente tus fuentes de datos existentes.</p>
+                        <div class="feature-details">
+                            <p>Nuestra plataforma se integra sin problemas con tus sistemas actuales:</p>
+                            <ul>
+                                <li>CRM y sistemas de ventas</li>
+                                <li>Plataformas de e-commerce</li>
+                                <li>Herramientas de marketing digital</li>
+                            </ul>
+                            <a href="#" class="btn">Ver integraciones</a>
+                        </div>
+                    </div>
+                    <div class="feature-card" data-feature="reportes">
+                        <h3>Reportes Personalizados</h3>
+                        <p>Crea informes adaptados a tus necesidades específicas.</p>
+                        <div class="feature-details">
+                            <p>Con nuestro generador de reportes puedes:</p>
+                            <ul>
+                                <li>Diseñar informes a medida</li>
+                                <li>Programar envíos automáticos</li>
+                                <li>Exportar en múltiples formatos</li>
+                            </ul>
+                            <a href="#" class="btn">Probar demo</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="demo" class="demo">
+            <div class="container">
+                <h2>Demo Interactiva</h2>
+                <p>Explora cómo nuestras soluciones pueden transformar tus datos en insights accionables.</p>
+                <div class="demo-grid">
+                    <div class="demo-card">
+                        <h3>Análisis de Beneficios</h3>
+                        <div class="chart-container">
+                            <canvas id="profitChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <h3>Predicciones de Ventas</h3>
+                        <div class="chart-container">
+                            <canvas id="salesPredictionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <h3>Probabilidad de Alcanzar Objetivos</h3>
+                        <div class="chart-container">
+                            <canvas id="goalProbabilityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2>Contáctanos</h2>
+                <p>¿Listo para llevar tu negocio al siguiente nivel? Déjanos tus datos y nos pondremos en contacto contigo.</p>
+                <form id="contactForm">
+                    <input type="text" placeholder="Nombre" required>
+                    <input type="email" placeholder="Email" required>
+                    <textarea placeholder="Mensaje" required></textarea>
+                    <button type="submit" class="btn">Enviar</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 DataPyme. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Configuración del canvas interactivo
+        const canvas = document.getElementById('interactiveBg');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Clase para las partículas
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 5 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        // Array para almacenar las partículas
+        const particleArray = [];
+
+        // Inicializar partículas
+        function init() {
+            for (let i = 0; i < 100; i++) {
+                particleArray.push(new Particle());
+            }
+        }
+
+        // Animar partículas
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particleArray.length; i++) {
+                particleArray[i].update();
+                particleArray[i].draw();
+                
+                
+                
+                // Conectar partículas cercanas
+                for (let j = i; j < particleArray.length; j++) {
+                    const dx = particleArray[i].x - particleArray[j].x;
+                    const dy = particleArray[i].y - particleArray[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255,255,255,${1 - distance/100})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particleArray[i].x, particleArray[i].y);
+                        ctx.lineTo(particleArray[j].x, particleArray[j].y);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                }
+                
+                // Reiniciar partículas que salen del canvas
+                if (particleArray[i].x < 0 || particleArray[i].x > canvas.width ||
+                    particleArray[i].y < 0 || particleArray[i].y > canvas.height) {
+                    particleArray[i] = new Particle();
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // Iniciar animación
+        init();
+        animate();
+
+        // Ajustar canvas al redimensionar la ventana
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        // Interactividad con el mouse
+        let mouse = {
+            x: null,
+            y: null,
+            radius: 150
+        }
+
+        window.addEventListener('mousemove', function(event) {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+
+        // Manejar interacción con tarjetas de características
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const details = card.querySelector('.feature-details');
+                details.classList.toggle('active');
+            });
+        });
+
+        // Smooth scroll para navegación
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Manejar envío del formulario de contacto
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Gracias por tu mensaje. Nos pondremos en contacto contigo pronto.');
+            this.reset();
+        });
+
+        // Configuración de los gráficos de demostración
+        const profitChart = new Chart(document.getElementById('profitChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Beneficios',
+                    data: [12, 19, 3, 5, 2, 3],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const salesPredictionChart = new Chart(document.getElementById('salesPredictionChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                datasets: [{
+                    label: 'Ventas Previstas',
+                    data: [65, 59, 80, 81, 56, 55],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const goalProbabilityChart = new Chart(document.getElementById('goalProbabilityChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Alcanzado', 'En progreso', 'En riesgo'],
+                datasets: [{
+                    data: [300, 50, 100],
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        });
+    </script>
+</body>
+</html>

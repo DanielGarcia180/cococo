@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelos de Machine Learning Avanzado</title>
+    <!-- Tailwind CSS para estilo moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f0f4f8;
+        margin: 0;
+        padding: 0;
+    }
+    body.dark-mode {
+        background-color: #181818;
+        color: #e0e0e0;
+    }
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+        body.dark-mode .container {
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+        input[type="number"], select {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            width: 150px;
+            margin: 10px 0;
+        }
+        body.dark-mode input[type="number"], body.dark-mode select {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        body.dark-mode button {
+            background-color: #3b8735;
+            color: #fff;
+        }
+        body.dark-mode button:hover {
+            background-color: #3c9a4a;
+        }
+        .results {
+            margin-top: 20px;
+            background-color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        body.dark-mode .results {
+            background-color: #3b3b3b;
+        }
+        .dark-mode-toggle {
+            cursor: pointer;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            background-color: #ccc;
+            height: 5px;
+            border-radius: 3px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .progress-bar-inner {
+            background-color: #4CAF50;
+            height: 100%;
+            width: 0;
+            transition: width 0.5s;
+        }
+        body.dark-mode .progress-bar {
+            background-color: #444;
+        }
+        body.dark-mode .progress-bar-inner {
+            background-color: #76c77e;
+        }
+        #chart-container {
+            position: relative;
+            margin-top: 20px;
+        }
+        #chart-container button {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold mb-5">Modelos Avanzados de Machine Learning</h1>
+
+        <!-- Toggle Modo Oscuro -->
+        <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+            🌙 Modo Oscuro / ☀️ Modo Claro
+        </div>
+        
+        <!-- Selección de Algoritmo -->
+        <div class="mb-4">
+    <!-- Sidebar actualizado -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li class="active"><a href="home.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="geospatial.html"><i class="fas fa-map"></i> Análisis Geoespacial</a></li>
+            <li><a href="apps.html"><i class="fas fa-th"></i> Apps</a></li>
+            <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Análisis</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+        </ul>
+    </div>
+    
+    <div class="container">
+            <select id="algorithm-select" class="border border-gray-300 p-2 rounded">
+                <option value="linear">Regresión Lineal</option>
+                <option value="polynomial">Regresión Polinómica (Elige Grado)</option>
+                <option value="arima">Modelo ARIMA</option>
+                <option value="logistic">Regresión Logística</option>
+                <option value="svm">Support Vector Machine (SVM)</option>
+                <option value="decision-tree">Árbol de Decisión</option>
+                <option value="knn">K-Nearest Neighbors</option>
+                <option value="random-forest">Random Forest</option>
+                <option value="gradient-boosting">Gradient Boosting</option>
+            </select>
+        </div>
+
+        <!-- Control deslizante para elegir el grado de la regresión polinómica -->
+        <div class="mb-4" id="polynomial-degree-control" style="display: none;">
+            <label for="degree-slider" class="block mb-2 text-lg">Selecciona el grado de la regresión polinómica:</label>
+            <input type="range" id="degree-slider" min="2" max="10" value="2" oninput="updateDegreeLabel()">
+            <p>Grado seleccionado: <span id="degree-value">2</span></p>
+        </div>
+
+        <!-- Sección para ingresar datos de entrenamiento -->
+        <div class="input-section mb-6">
+            <h2 class="text-xl font-semibold">Datos de Entrenamiento</h2>
+            <p class="text-gray-600 mb-2">Agrega los puntos para entrenar el modelo (X, Y):</p>
+            <div>
+                <input type="number" id="x-input" placeholder="X (Independiente)">
+                <input type="number" id="y-input" placeholder="Y (Dependiente)">
+                <button onclick="addPoint()">Agregar Punto</button>
+            </div>
+            <p id="error-message" class="text-red-500"></p>
+            <div class="mt-4">
+                <button onclick="trainModel()">Entrenar Modelo</button>
+                <button onclick="clearData()">Limpiar Datos</button>
+                <button id="download-btn" onclick="downloadData()">Descargar Datos</button>
+            </div>
+
+            <!-- Barra de progreso -->
+            <div class="progress-bar">
+                <div class="progress-bar-inner" id="progress-bar-inner"></div>
+            </div>
+        </div>
+
+        <!-- Gráfico de dispersión -->
+        <div id="chart-container">
+            <canvas id="plot" width="400" height="200"></canvas>
+            <button onclick="exportChart()">Exportar Gráfico</button>
+        </div>
+
+        <!-- Slider para predicción dinámica -->
+        <div class="prediction-slider">
+            <h2 class="text-xl font-semibold">Predicción Dinámica</h2>
+            <input type="range" min="0" max="100" value="50" id="predict-slider" oninput="updateSliderValue()">
+            <p id="slider-value" class="text-gray-600">Valor X para predecir: 50</p>
+        </div>
+
+        <!-- Resultados -->
+        <div id="results" class="results">
+            Los resultados aparecerán aquí
+        </div>
+
+        <!-- Métricas de evaluación -->
+        <div id="metrics" class="results">
+            <h3>Métricas de Evaluación:</h3>
+            <p id="mse">MSE: <span>---</span></p>
+            <p id="rmse">RMSE: <span>---</span></p>
+            <p id="r2">R²: <span>---</span></p>
+        </div>
+
+        <!-- Panel de control avanzado -->
+        <div class="control-panel">
+            <h2>Opciones de Personalización</h2>
+            <label for="color-picker">Color de la línea:</label>
+            <input type="color" id="color-picker" value="#FF0000">
+            <label for="chart-type-select">Tipo de gráfico:</label>
+            <select id="chart-type-select">
+                <option value="line">Línea</option>
+                <option value="bar">Barras</option>
+                <option value="area">Área</option>
+            </select>
+            <button onclick="saveConfiguration()">Guardar Configuración</button>
+            <button onclick="loadConfiguration()">Cargar Configuración</button>
+        </div>
+    </div>
+
+    <!-- Cargar Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.min.js"></script>
+    <script>
+        let trainingData = { x: [], y: [] };  // Almacena los puntos
+        let model = { slope: 0, intercept: 0, coefficients: [] };  // Modelo de regresión
+        let chart = null;  // Variable para el gráfico
+        let algorithm = 'linear';  // Algoritmo seleccionado
+        let polynomialDegree = 2;  // Grado para la regresión polinómica
+        let chartType = 'line';  // Tipo de gráfico (por defecto línea)
+        let lineColor = '#FF0000';  // Color de la línea (por defecto rojo)
+
+        // Inicializa el gráfico
+        function initChart() {
+            const ctx = document.getElementById('plot').getContext('2d');
+            chart = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    datasets: [
+                        {
+                            label: 'Datos de Entrenamiento',
+                            data: [],
+                            backgroundColor: 'blue'
+                        },
+                        {
+                            label: 'Línea de Regresión',
+                            data: [],
+                            type: 'line',
+                            borderColor: lineColor,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'X - Variable Independiente'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Y - Variable Dependiente'
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy',
+                            },
+                            zoom: {
+                                enabled: true,
+                                mode: 'xy',
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Alternar entre modo oscuro y claro
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // Actualizar el valor del grado de la regresión polinómica
+        function updateDegreeLabel() {
+            polynomialDegree = document.getElementById('degree-slider').value;
+            document.getElementById('degree-value').textContent = polynomialDegree;
+        }
+
+        // Agregar punto de entrenamiento
+        function addPoint() {
+            const x = parseFloat(document.getElementById('x-input').value);
+            const y = parseFloat(document.getElementById('y-input').value);
+            const errorMessage = document.getElementById('error-message');
+
+            if (isNaN(x) || isNaN(y)) {
+                errorMessage.textContent = 'Por favor, introduce valores válidos para X e Y.';
+                return;
+            }
+            errorMessage.textContent = '';  // Limpia mensajes de error previos
+            trainingData.x.push(x);
+            trainingData.y.push(y);
+
+            if (trainingData.x.length >= 2) {
+                trainModel();
+            }
+
+            updateChart();  // Actualiza el gráfico
+            document.getElementById('x-input').value = '';
+            document.getElementById('y-input').value = '';
+        }
+
+        // Simulación de barra de progreso
+        function simulateProgress() {
+            const progressBar = document.getElementById('progress-bar-inner');
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                } else {
+                    width += 10;
+                    progressBar.style.width = width + '%';
+                }
+            }, 100);
+        }
+
+        // Entrenar el modelo según el algoritmo
+        function trainModel() {
+            if (trainingData.x.length < 2) {
+                alert('Se necesitan al menos 2 puntos para entrenar el modelo');
+                return;
+            }
+
+            simulateProgress();  // Simula el progreso del entrenamiento
+
+            if (algorithm === 'linear') {
+                trainLinearModel();
+            } else if (algorithm === 'polynomial') {
+                trainPolynomialModel();
+            } else if (algorithm === 'arima') {
+                trainArimaModel();
+            } else if (algorithm === 'logistic') {
+                trainLogisticModel();
+            } else if (algorithm === 'svm') {
+                trainSVMModel();
+            } else if (algorithm === 'decision-tree') {
+                trainDecisionTreeModel();
+            } else if (algorithm === 'knn') {
+                trainKNNModel();
+            } else if (algorithm === 'random-forest') {
+                trainRandomForestModel();
+            } else if (algorithm === 'gradient-boosting') {
+                trainGradientBoostingModel();
+            }
+        }
+
+        // Entrenar modelo de regresión lineal
+        function trainLinearModel() {
+            const meanX = trainingData.x.reduce((a, b) => a + b) / trainingData.x.length;
+            const meanY = trainingData.y.reduce((a, b) => a + b) / trainingData.y.length;
+
+            let numerator = 0;
+            let denominator = 0;
+            for (let i = 0; i < trainingData.x.length; i++) {
+                numerator += (trainingData.x[i] - meanX) * (trainingData.y[i] - meanY);
+                denominator += Math.pow(trainingData.x[i] - meanX, 2);
+            }
+
+            model.slope = numerator / denominator;
+            model.intercept = meanY - model.slope * meanX;
+
+            updateChart();
+            displayResults();
+            calculateMetrics();  // Calcular métricas MSE, RMSE y R²
+        }
+
+        // Entrenar modelo polinómico (con grado dinámico)
+        function trainPolynomialModel() {
+            const n = trainingData.x.length;
+            let X = [];
+            let Y = trainingData.y;
+
+            for (let i = 0; i < n; i++) {
+                let row = [1];
+                for (let j = 1; j <= polynomialDegree; j++) {
+                    row.push(Math.pow(trainingData.x[i], j));
+                }
+                X.push(row);
+            }
+
+            const Xt = math.transpose(X);
+            const XtX = math.multiply(Xt, X);
+            const XtY = math.multiply(Xt, Y);
+            const XtX_inv = math.inv(XtX);
+            model.coefficients = math.multiply(XtX_inv, XtY);
+
+            updateChart();
+            displayResults();
+            calculateMetrics();  // Calcular métricas MSE, RMSE y R²
+        }
+
+        // Calcular MSE, RMSE y R²
+        function calculateMetrics() {
+            const n = trainingData.x.length;
+            let predictions = [];
+
+            for (let i = 0; i < n; i++) {
+                if (algorithm === 'linear') {
+                    predictions.push(model.slope * trainingData.x[i] + model.intercept);
+                } else if (algorithm === 'polynomial') {
+                    predictions.push(predictPolynomial(trainingData.x[i]));
+                }
+            }
+
+            // Calcular MSE y RMSE
+            const mse = predictions.reduce((sum, pred, i) => sum + Math.pow(pred - trainingData.y[i], 2), 0) / n;
+            const rmse = Math.sqrt(mse);
+
+            // Calcular R²
+            const meanY = trainingData.y.reduce((a, b) => a + b) / n;
+            const ssTotal = trainingData.y.reduce((sum, y) => sum + Math.pow(y - meanY, 2), 0);
+            const ssResidual = predictions.reduce((sum, pred, i) => sum + Math.pow(trainingData.y[i] - pred, 2), 0);
+            const r2 = 1 - (ssResidual / ssTotal);
+
+            // Mostrar resultados
+            document.getElementById('mse').querySelector('span').textContent = mse.toFixed(4);
+            document.getElementById('rmse').querySelector('span').textContent = rmse.toFixed(4);
+            document.getElementById('r2').querySelector('span').textContent = r2.toFixed(4);
+        }
+
+        // Entrenar modelo ARIMA
+        function trainArimaModel() {
+            fetch('/predict_arima', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: trainingData.y })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const prediction = data.prediction;
+                document.getElementById('results').innerHTML = `
+                    <strong>Predicción con ARIMA:</strong><br>
+                    El siguiente valor predicho es = <strong>${prediction.toFixed(2)}</strong>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('results').innerHTML = 'Error al entrenar el modelo ARIMA.';
+            });
+        }
+
+        // Hacer predicción polinómica
+        function predictPolynomial(x) {
+            return model.coefficients.reduce((sum, coef, index) => sum + coef * Math.pow(x, index), 0);
+        }
+
+        // Hacer predicción
+        function predict() {
+            const x = parseFloat(document.getElementById('predict-input').value);
+            if (isNaN(x)) {
+                document.getElementById('results').innerHTML = 'Introduce un valor válido para X.';
+                return;
+            }
+
+            let prediction;
+            if (algorithm === 'linear') {
+                prediction = model.slope * x + model.intercept;
+            } else if (algorithm === 'polynomial') {
+                prediction = predictPolynomial(x);
+            }
+
+            document.getElementById('results').innerHTML = `
+                <strong>Predicción:</strong><br>
+                Para X = ${x}, el valor de Y predicho es = <strong>${prediction.toFixed(2)}</strong>
+            `;
+        }
+
+        // Actualizar el gráfico
+        function updateChart() {
+            const scatterData = trainingData.x.map((x, i) => ({ x: x, y: trainingData.y[i] }));
+            let lineData = [];
+
+            if (algorithm === 'linear') {
+                const minX = Math.min(...trainingData.x);
+                const maxX = Math.max(...trainingData.x);
+                lineData = [
+                    { x: minX, y: model.slope * minX + model.intercept },
+                    { x: maxX, y: model.slope * maxX + model.intercept }
+                ];
+            } else if (algorithm === 'polynomial') {
+                const minX = Math.min(...trainingData.x);
+                const maxX = Math.max(...trainingData.x);
+                for (let x = minX; x <= maxX; x += (maxX - minX) / 100) {
+                    lineData.push({ x: x, y: predictPolynomial(x) });
+                }
+            }
+
+            chart.data.datasets[0].data = scatterData;
+            chart.data.datasets[1].data = lineData;
+            chart.update();
+        }
+
+        // Slider dinámico para cambiar el valor de predicción
+        function updateSliderValue() {
+            const slider = document.getElementById('predict-slider');
+            const value = slider.value;
+            document.getElementById('slider-value').textContent = `Valor X para predecir: ${value}`;
+
+            if (algorithm === 'linear') {
+                const prediction = model.slope * value + model.intercept;
+                document.getElementById('results').innerHTML = `
+                    <strong>Predicción Dinámica:</strong><br>
+                    Para X = ${value}, el valor de Y predicho es = <strong>${prediction.toFixed(2)}</strong>
+                `;
+            } else if (algorithm === 'polynomial') {
+                const prediction = predictPolynomial(value);
+                document.getElementById('results').innerHTML = `
+                    <strong>Predicción Dinámica:</strong><br>
+                    Para X = ${value}, el valor de Y predicho es = <strong>${prediction.toFixed(2)}</strong>
+                `;
+            }
+        }
+
+        // Descargar los datos en JSON
+        function downloadData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trainingData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "training_data.json");
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        // Exportar gráfico como imagen
+        function exportChart() {
+            const link = document.createElement('a');
+            link.href = chart.toBase64Image();
+            link.download = 'grafico.png';
+            link.click();
+        }
+
+        // Limpiar los datos
+        function clearData() {
+            trainingData.x = [];
+            trainingData.y = [];
+            model.slope = 0;
+            model.intercept = 0;
+            model.coefficients = [];
+            updateChart();
+            document.getElementById('results').innerHTML = 'Los resultados aparecerán aquí';
+        }
+
+        // Guardar configuración del gráfico
+        function saveConfiguration() {
+            const config = {
+                chartType: chartType,
+                lineColor: lineColor,
+                polynomialDegree: polynomialDegree
+            };
+            localStorage.setItem('chartConfig', JSON.stringify(config));
+            alert('Configuración guardada.');
+        }
+
+        // Cargar configuración del gráfico
+        function loadConfiguration() {
+            const config = JSON.parse(localStorage.getItem('chartConfig'));
+            if (config) {
+                chartType = config.chartType;
+                lineColor = config.lineColor;
+                polynomialDegree = config.polynomialDegree;
+                updateChart();
+                document.getElementById('degree-slider').value = polynomialDegree;
+                document.getElementById('color-picker').value = lineColor;
+                document.getElementById('chart-type-select').value = chartType;
+                alert('Configuración cargada.');
+            } else {
+                alert('No hay configuración guardada.');
+            }
+        }
+
+        // Inicializar gráfico al cargar la página
+        window.onload = initChart;
+    </script>
+</body>
+</html>

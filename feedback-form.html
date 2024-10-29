@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Feedback</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/feedback-form.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/feedback">Feedback</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Formulario de Feedback</h1>
+        
+        <!-- Formulario de Feedback -->
+        <form id="feedback-form" class="feedback-form">
+            <div class="form-group">
+                <label for="feedback-text">Tu Feedback:</label>
+                <textarea id="feedback-text" name="feedback" rows="5" required></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" id="submit-feedback" class="btn-primary">Enviar Feedback</button>
+                <button type="button" id="clear-form" class="btn-secondary">Limpiar Formulario</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/feedback-form.js"></script>
+</body>
+</html>
+

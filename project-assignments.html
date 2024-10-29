@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignación de Proyectos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/project-assignments.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/teams">Equipos</a></li>
+            <li class="active"><a href="/project-assignments">Asignaciones</a></li>
+            <li><a href="/projects">Proyectos</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Asignación de Proyectos</h1>
+            <button id="new-assignment" class="btn-primary">
+                <i class="fas fa-plus"></i> Nueva Asignación
+            </button>
+        </div>
+
+        <!-- Filtros y Búsqueda -->
+        <div class="filters-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-assignments" placeholder="Buscar asignaciones...">
+            </div>
+            <div class="filter-controls">
+                <select id="team-filter">
+                    <option value="">Todos los Equipos</option>
+                </select>
+                <select id="project-filter">
+                    <option value="">Todos los Proyectos</option>
+                </select>
+                <select id="status-filter">
+                    <option value="">Todos los Estados</option>
+                    <option value="active">Activos</option>
+                    <option value="completed">Completados</option>
+                    <option value="pending">Pendientes</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Vista de Asignaciones -->
+        <div class="assignments-view">
+            <!-- Vista de Tarjetas -->
+            <div id="cards-view" class="assignments-grid">
+                <!-- Las tarjetas de asignación se cargarán dinámicamente aquí -->
+            </div>
+
+            <!-- Vista de Tabla -->
+            <div id="table-view" class="assignments-table" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipo</th>
+                            <th>Proyecto</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assignments-table-body">
+                        <!-- Las filas se cargarán dinámicamente aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal de Nueva Asignación -->
+        <div id="assignment-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Nueva Asignación</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="assignment-form">
+                    <div class="form-group">
+                        <label for="team-select">Equipo:</label>
+                        <select id="team-select" required>
+                            <option value="">Seleccionar Equipo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-select">Proyecto:</label>
+                        <select id="project-select" required>
+                            <option value="">Seleccionar Proyecto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="start-date">Fecha de Inicio:</label>
+                        <input type="date" id="start-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end-date">Fecha de Fin:</label>
+                        <input type="date" id="end-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="assignment-description">Descripción:</label>
+                        <textarea id="assignment-description" rows="3"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-primary">Guardar Asignación</button>
+                        <button type="button" class="btn-secondary" id="cancel-assignment">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Detalles de Asignación -->
+        <div id="details-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Detalles de la Asignación</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="assignment-details">
+                    <div class="detail-section">
+                        <h3>Información General</h3>
+                        <div id="general-info"></div>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Miembros del Equipo</h3>
+                        <div id="team-members"></div>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Progreso del Proyecto</h3>
+                        <div id="project-progress"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" id="edit-assignment">Editar</button>
+                    <button class="btn-danger" id="remove-assignment">Eliminar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Confirmación -->
+        <div id="confirm-modal" class="modal">
+            <div class="modal-content">
+                <h3>Confirmar Acción</h3>
+                <p id="confirm-message"></p>
+                <div class="modal-actions">
+                    <button id="confirm-action" class="btn-danger">Confirmar</button>
+                    <button id="cancel-action" class="btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/project-assignments.js"></script>
+</body>
+</html>

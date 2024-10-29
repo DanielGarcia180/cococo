@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Geoespacial</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/geospatial.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="home.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li class="active"><a href="geospatial.html"><i class="fas fa-map"></i> Análisis Geoespacial</a></li>
+            <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Análisis</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Análisis Geoespacial</h1>
+        
+        <!-- Barra de herramientas superior -->
+        <div class="geo-toolbar">
+            <div class="tool-group">
+                <button class="tool-btn" id="createProjectBtn">
+                    <i class="fas fa-plus"></i> Crear Proyecto
+                </button>
+                <button class="tool-btn" id="generateReportBtn">
+                    <i class="fas fa-file-alt"></i> Generar Informe
+                </button>
+                <button class="tool-btn" id="heatmapBtn">
+                    <i class="fas fa-fire"></i> Mapa de Calor
+                </button>
+            </div>
+        </div>
+
+        <!-- Controles de Datos Geoespaciales -->
+        <div class="geo-controls">
+            <button id="load-geo-data" class="btn-primary">
+                <i class="fas fa-database"></i> Cargar Datos
+            </button>
+            <button id="filter-data" class="btn-secondary">
+                <i class="fas fa-filter"></i> Filtrar Datos
+            </button>
+        </div>
+
+        <!-- Panel de Conexión -->
+        <div class="connection-panel">
+            <div class="panel-header">
+                <h3><i class="fas fa-plug"></i> Configuración de Conexión</h3>
+                <div class="connection-status" id="connection-status"></div>
+            </div>
+            <div class="connection-form">
+                <div class="form-group">
+                    <label for="db-type">Tipo de Conexión:</label>
+                    <select id="db-type" name="db-type">
+                        <option value="mysql">MySQL</option>
+                        <option value="odbc">ODBC</option>
+                    </select>
+                </div>
+                <div class="form-group mysql-field">
+                    <label for="db-host">Host:</label>
+                    <input type="text" id="db-host" name="db-host" placeholder="localhost">
+                </div>
+                <div class="form-group odbc-field" style="display: none;">
+                    <label for="db-dsn">Nombre DSN:</label>
+                    <input type="text" id="db-dsn" name="db-dsn" placeholder="Nombre del DSN">
+                </div>
+                <div class="form-group">
+                    <label for="db-port">Puerto:</label>
+                    <input type="text" id="db-port" name="db-port" placeholder="3306">
+                </div>
+                <div class="form-group">
+                    <label for="db-name">Nombre de Base de Datos:</label>
+                    <input type="text" id="db-name" name="db-name">
+                </div>
+                <div class="form-group">
+                    <label for="db-user">Usuario:</label>
+                    <input type="text" id="db-user" name="db-user">
+                </div>
+                <div class="form-group">
+                    <label for="db-password">Contraseña:</label>
+                    <input type="password" id="db-password" name="db-password">
+                </div>
+                <button id="test-connection" class="btn-secondary">
+                    <i class="fas fa-vial"></i> Probar Conexión
+                </button>
+                <button id="save-connection" class="btn-primary">
+                    <i class="fas fa-save"></i> Guardar Configuración
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtros adicionales -->
+        <div class="additional-filters">
+            <div class="filter-group">
+                <label for="sale-date">Fecha de venta:</label>
+                <input type="date" id="sale-date" name="sale-date">
+            </div>
+
+            <div class="filter-group">
+                <label for="product-category">Categorías de productos:</label>
+                <select id="product-category" name="product-category">
+                    <option value="all">Todas</option>
+                    <option value="electronics">Electrónica</option>
+                    <option value="clothing">Ropa</option>
+                    <option value="home">Hogar</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="customer-type">Tipo de cliente:</label>
+                <select id="customer-type" name="customer-type">
+                    <option value="all">Todos</option>
+                    <option value="new">Nuevo</option>
+                    <option value="recurring">Recurrente</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="region">Región geográfica:</label>
+                <select id="region" name="region">
+                    <option value="all">Todas</option>
+                    <option value="north">Norte</option>
+                    <option value="south">Sur</option>
+                    <option value="east">Este</option>
+                    <option value="west">Oeste</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Contenedor del Mapa -->
+        <div id="map-container">
+            <div id="map" style="height: 500px;"></div>
+            <div class="map-controls">
+                <button id="toggle-fullscreen" class="btn-secondary">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button id="reset-view" class="btn-secondary">
+                    <i class="fas fa-home"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabla de Datos -->
+        <div class="data-table-container">
+            <h3><i class="fas fa-table"></i> Datos Geoespaciales</h3>
+            <table id="data-table" class="display">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Cliente</th>
+                        <th>Región</th>
+                        <th>Ventas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Datos cargados dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/geospatial.js"></script>
+</body>
+</html>

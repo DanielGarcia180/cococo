@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Equipos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/team-management.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/teams">Gestión de Equipos</a></li>
+            <li><a href="/projects">Proyectos</a></li>
+            <li><a href="/users">Usuarios</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Gestión de Equipos</h1>
+            <button id="create-team" class="btn-primary">
+                <i class="fas fa-plus"></i> Crear Equipo
+            </button>
+        </div>
+
+        <!-- Filtros y Búsqueda -->
+        <div class="filters-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="team-search" placeholder="Buscar equipos...">
+            </div>
+            <select id="filter-status">
+                <option value="all">Todos los Estados</option>
+                <option value="active">Activos</option>
+                <option value="inactive">Inactivos</option>
+            </select>
+        </div>
+
+        <!-- Lista de Equipos -->
+        <div class="teams-container">
+            <div class="teams-grid" id="teams-grid">
+                <!-- Los equipos se cargarán dinámicamente aquí -->
+            </div>
+        </div>
+
+        <!-- Modal Crear/Editar Equipo -->
+        <div id="team-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title">Crear Nuevo Equipo</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="team-form">
+                    <div class="form-group">
+                        <label for="team-name">Nombre del Equipo:</label>
+                        <input type="text" id="team-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="team-description">Descripción:</label>
+                        <textarea id="team-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Miembros del Equipo:</label>
+                        <div class="members-container">
+                            <div class="members-search">
+                                <input type="text" id="member-search" placeholder="Buscar usuarios...">
+                                <div id="members-suggestions" class="suggestions-dropdown"></div>
+                            </div>
+                            <div id="selected-members" class="selected-members">
+                                <!-- Miembros seleccionados se mostrarán aquí -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Roles y Permisos:</label>
+                        <div id="roles-container" class="roles-container">
+                            <!-- Roles se generarán dinámicamente -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-primary">Guardar Equipo</button>
+                        <button type="button" class="btn-secondary" id="cancel-team">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Confirmación -->
+        <div id="confirm-modal" class="modal">
+            <div class="modal-content">
+                <h3>Confirmar Acción</h3>
+                <p id="confirm-message"></p>
+                <div class="modal-actions">
+                    <button id="confirm-action" class="btn-danger">Confirmar</button>
+                    <button id="cancel-action" class="btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Detalles del Equipo -->
+        <div id="team-details-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Detalles del Equipo</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="team-details">
+                    <div class="team-info">
+                        <h3 id="detail-team-name"></h3>
+                        <p id="detail-team-description"></p>
+                    </div>
+                    <div class="team-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <span id="team-member-count">0 Miembros</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-project-diagram"></i>
+                            <span id="team-project-count">0 Proyectos</span>
+                        </div>
+                    </div>
+                    <div class="team-members-list">
+                        <h4>Miembros del Equipo</h4>
+                        <div id="detail-team-members"></div>
+                    </div>
+                    <div class="team-projects">
+                        <h4>Proyectos Asignados</h4>
+                        <div id="detail-team-projects"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/team-management.js"></script>
+</body>
+</html>

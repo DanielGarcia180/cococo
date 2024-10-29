@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización de Gráficos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/charts.css">
+    <!-- Incluir Chart.js y plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/charts">Gráficos</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Visualización de Gráficos</h1>
+        
+        <!-- Controles de Gráficos -->
+        <div class="chart-controls">
+            <div class="control-group">
+                <label for="chart-type">Tipo de Gráfico:</label>
+                <select id="chart-type">
+                    <option value="line">Líneas</option>
+                    <option value="bar">Barras</option>
+                    <option value="pie">Circular</option>
+                    <option value="scatter">Dispersión</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="data-file">Cargar Datos:</label>
+                <input type="file" id="data-file" accept=".csv,.xlsx,.json">
+                <button id="load-data" class="btn-primary">Cargar</button>
+            </div>
+        </div>
+
+        <!-- Área de Visualización -->
+        <div class="chart-container">
+            <canvas id="main-chart"></canvas>
+        </div>
+
+        <!-- Controles de Zoom -->
+        <div class="zoom-controls">
+            <button id="zoom-in" class="btn-secondary">Zoom In</button>
+            <button id="zoom-out" class="btn-secondary">Zoom Out</button>
+            <button id="reset-zoom" class="btn-secondary">Reset Zoom</button>
+        </div>
+
+        <!-- Panel de Datos -->
+        <div class="data-panel">
+            <h3>Datos Cargados</h3>
+            <div id="data-preview"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Error -->
+    <div id="error-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Error</h2>
+            <p id="error-message"></p>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/charts.js"></script>
+</body>
+</html>

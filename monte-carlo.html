@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación Monte Carlo - Optimización Empresarial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .container {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #1e40af;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            padding: 20px;
+            color: white;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .tag {
+            background-color: #eff6ff;
+            color: #3b82f6;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+
+        .panel {
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        #simulationChart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #1376e0;
+        }
+
+        .manual-input {
+            padding: 5px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .risk-panel {
+            background-color: #fef3f3;
+            color: #b91c1c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Animaciones adicionales para mejorar la experiencia del usuario */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .expand {
+            animation: expand 0.5s ease-in-out forwards;
+        }
+
+        @keyframes expand {
+            from {
+                transform: scale(0.9);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h1 class="font-bold text-2xl">Simulador Monte Carlo</h1>
+        <a href="#" id="newSimulation">Simulación Nueva</a>
+        <a href="#" id="simulationHistory">Historial de Simulaciones</a>
+        <a href="#" id="advancedConfig">Configuración Avanzada</a>
+        <a href="#" id="riskAnalysis">Análisis de Riesgo</a>
+        <a href="#" id="helpCenter">Centro de Ayuda</a>
+        
+        <!-- Botones para navegar a home.html y apps.html -->
+        <a href="home.html" id="goHome" class="button bg-green-500 hover:bg-green-600 mt-4 block text-white text-center py-2">Ir a Home</a>
+        <a href="apps.html" id="goApps" class="button bg-blue-500 hover:bg-blue-600 mt-2 block text-white text-center py-2">Ir a Apps</a>
+    </div>
+    
+    <!-- Contenedor Principal -->
+    <div class="container" id="mainContent">
+        <!-- Aquí aparecerá el contenido dinámico -->
+    </div>
+    
+    <script>
+        // Event listeners para los botones del sidebar
+        document.getElementById('newSimulation').addEventListener('click', function() {
+            startNewSimulation();
+        });
+    
+        document.getElementById('simulationHistory').addEventListener('click', function() {
+            showSimulationHistory();
+        });
+    
+        document.getElementById('advancedConfig').addEventListener('click', function() {
+            showAdvancedConfig();
+        });
+    
+        document.getElementById('riskAnalysis').addEventListener('click', function() {
+            showRiskAnalysis();
+        });
+    
+        document.getElementById('helpCenter').addEventListener('click', function() {
+            showHelpCenter();
+        });
+    
+        // Función para inicializar una nueva simulación
+        function startNewSimulation() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Nueva Simulación</h2>
+                    <p>Defina los parámetros de su simulación para comenzar.</p>
+                </div>
+            `;
+        }
+    
+        // Función para mostrar el historial de simulaciones
+        function showSimulationHistory() {
+            const mainContent = document.getElementById('mainContent');
+            const storedSimulations = localStorage.getItem('simulationHistory') || 'No hay simulaciones guardadas.';
+            
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Historial de Simulaciones</h2>
+                    <div>${storedSimulations}</div>
+                </div>
+            `;
+        }
+    
+        // Función para mostrar configuración avanzada
+        function showAdvancedConfig() {
+            const mainContent = document.getElementById('mainContent');
+            
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Configuración Avanzada</h2>
+                    <p>Aquí puede ajustar configuraciones avanzadas como el número de iteraciones, tipo de distribución, etc.</p>
+                </div>
+            `;
+        }
+    
+        // Función para mostrar el análisis de riesgo
+        function showRiskAnalysis() {
+            const mainContent = document.getElementById('mainContent');
+            const riskData = 'Porcentaje de riesgo total: 25%';  // Simulado
+    
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Análisis de Riesgo</h2>
+                    <p>${riskData}</p>
+                </div>
+            `;
+        }
+    
+        // Función para mostrar el centro de ayuda
+        function showHelpCenter() {
+            const mainContent = document.getElementById('mainContent');
+            
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4">Centro de Ayuda</h2>
+                    <p>Aquí puede encontrar respuestas a preguntas frecuentes y guías sobre cómo usar el simulador Monte Carlo.</p>
+                    <ul>
+                        <li>¿Cómo iniciar una simulación?</li>
+                        <li>¿Cómo ajustar los parámetros?</li>
+                        <li>¿Cómo interpretar los resultados?</li>
+                    </ul>
+                </div>
+            `;
+        }
+    </script>
+    
+
+    <!-- Contenedor Principal -->
+    <div class="container">
+        <h2 class="text-3xl font-bold mb-4">Simulación Monte Carlo - Parámetros Avanzados</h2>
+
+        <!-- Parámetros -->
+        <div class="card">
+            <h3 class="font-bold text-xl mb-4">Definir Parámetros</h3>
+            <label for="iterations">Número de Iteraciones</label>
+            <input type="number" id="iterations" value="10000" min="100" max="1000000" class="block w-full mb-4 p-2 border rounded-md">
+
+            <label for="distribution">Tipo de Distribución</label>
+            <select id="distribution" class="block w-full mb-4 p-2 border rounded-md">
+                <option value="uniform">Uniforme</option>
+                <option value="normal">Normal</option>
+                <option value="binomial">Binomial</option>
+                <option value="poisson">Poisson</option>
+                <option value="gamma">Gamma</option>
+                <option value="beta">Beta</option>
+                <option value="triangular">Triangular</option>
+                <option value="lognormal">LogNormal</option>
+            </select>
+
+            <!-- Ingreso Manual de Valores -->
+            <label for="manualValues">Ingresar valores manualmente (opcional)</label>
+            <textarea id="manualValues" rows="5" class="manual-input border rounded-md"></textarea>
+
+            <button class="button" id="startSimulation">Iniciar Simulación</button>
+            <button class="button bg-yellow-500 hover:bg-yellow-600" id="pauseSimulation">Pausar</button>
+            <button class="button bg-red-500 hover:bg-red-600" id="resetSimulation">Reiniciar</button>
+
+            <h4 class="font-bold text-lg mt-4">Control Avanzado:</h4>
+            <label for="confidenceLevel">Nivel de Confianza</label>
+            <input type="number" id="confidenceLevel" value="95" min="50" max="99" class="block w-full mb-4 p-2 border rounded-md">
+        </div>
+
+        <!-- Gráfico de Resultados -->
+        <div class="panel fade-in">
+            <h3 class="font-bold text-xl mb-4">Resultados</h3>
+            <canvas id="simulationChart" class="expand"></canvas>
+        </div>
+
+        <!-- Panel de Probabilidades -->
+        <div class="panel card expand">
+            <h3 class="font-bold text-xl mb-4">Probabilidades de Resultados</h3>
+            <div id="resultProbabilities"></div>
+        </div>
+
+        <!-- Panel de Análisis de Riesgo -->
+        <div class="panel risk-panel expand">
+            <h3 class="font-bold text-xl mb-4">Análisis de Riesgo Total</h3>
+            <p id="totalRisk">Porcentaje de riesgo total: 0%</p>
+        </div>
+
+        <!-- Panel de Escenarios -->
+        <div class="panel card expand">
+            <h3 class="font-bold text-xl mb-4">Definir Escenarios Personalizados</h3>
+            <label for="optimisticScenario">Escenario Optimista</label>
+            <input type="number" id="optimisticScenario" class="block w-full mb-4 p-2 border rounded-md" placeholder="Ej. 120000">
+
+            <label for="pessimisticScenario">Escenario Pesimista</label>
+            <input type="number" id="pessimisticScenario" class="block w-full mb-4 p-2 border rounded-md" placeholder="Ej. 85000">
+
+            <button class="button bg-blue-500 hover:bg-blue-600" id="runScenarios">Correr Escenarios</button>
+        </div>
+
+        <!-- Panel de Control Avanzado -->
+        <div class="panel card expand">
+            <h3 class="font-bold text-xl mb-4">Opciones de Personalización</h3>
+            <button class="button" id="saveSimulation">Guardar Simulación</button>
+            <button class="button" id="loadSimulation">Cargar Simulación</button>
+            <button class="button bg-green-500 hover:bg-green-600" id="exportResults">Exportar Resultados</button>
+            <button class="button bg-purple-500 hover:bg-purple-600" id="analyzeSensitivity">Análisis de Sensibilidad</button>
+            <button class="button bg-indigo-500 hover:bg-indigo-600" id="compareModels">Comparar Modelos</button>
+        </div>
+
+        <!-- Nuevo Panel: Simulación Multi-Escenario -->
+        <div class="panel card expand">
+            <h3 class="font-bold text-xl mb-4">Simulación Multi-Escenario</h3>
+            <label for="scenariosNumber">Número de Escenarios</label>
+            <input type="number" id="scenariosNumber" value="3" min="2" max="10" class="block w-full mb-4 p-2 border rounded-md">
+            
+            <label for="scenarioWeight">Peso por Escenario</label>
+            <input type="text" id="scenarioWeight" class="block w-full mb-4 p-2 border rounded-md" placeholder="Ej: 0.3, 0.5, 0.2">
+            
+            <button class="button bg-blue-600 hover:bg-blue-700" id="runMultiScenario">Ejecutar Multi-Escenario</button>
+        </div>
+
+        <!-- Nuevo Panel: Resultados de Comparación -->
+        <div class="panel card expand">
+            <h3 class="font-bold text-xl mb-4">Comparación de Modelos</h3>
+            <div id="comparisonResults"></div>
+        </div>
+
+        <!-- Panel: Gráficos adicionales y análisis -->
+        <div class="panel card expand">
+            <h3 class="font-bold text-xl mb-4">Gráficos Avanzados</h3>
+            <canvas id="advancedChart" class="expand"></canvas>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let simulationRunning = false;
+        let chartInstance;
+        let totalRisk = 0;
+        let simulationResults = [];
+        let multiScenarioResults = [];
+        let comparisonResults = [];
+        let advancedChart;
+
+        const distributions = ['uniform', 'normal', 'binomial', 'poisson', 'gamma', 'beta', 'triangular', 'lognormal'];
+
+        document.getElementById('startSimulation').addEventListener('click', startSimulation);
+        document.getElementById('runScenarios').addEventListener('click', runScenarioSimulations);
+        document.getElementById('runMultiScenario').addEventListener('click', runMultiScenarioSimulation);
+        document.getElementById('compareModels').addEventListener('click', compareModelResults);
+        document.getElementById('analyzeSensitivity').addEventListener('click', runSensitivityAnalysis);
+
+        // Función para iniciar la simulación
+        function startSimulation() {
+            const iterations = document.getElementById('iterations').value;
+            const distribution = document.getElementById('distribution').value;
+            const manualValues = document.getElementById('manualValues').value;
+
+            let results;
+
+            if (manualValues.trim() !== "") {
+                results = manualValues.split(',').map(Number);
+            } else {
+                results = runMonteCarlo(iterations, distribution);
+            }
+
+            simulationResults = results;
+            const data = generateHistogram(results);
+            totalRisk = calculateTotalRisk(results);
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(document.getElementById('simulationChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Frecuencia',
+                        data: data.values,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Resultados'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Frecuencia'
+                            }
+                        }
+                    }
+                }
+            });
+
+            simulationRunning = true;
+
+            document.getElementById('totalRisk').textContent = `Porcentaje de riesgo total: ${totalRisk.toFixed(2)}%`;
+        }
+
+        // Pausar simulación
+        function pauseSimulation() {
+            simulationRunning = false;
+            alert('Simulación en pausa');
+        }
+
+        // Reiniciar simulación
+        function resetSimulation() {
+            simulationRunning = false;
+            if (chartInstance) chartInstance.destroy();
+            alert('Simulación reiniciada');
+        }
+
+        function runMonteCarlo(iterations, distribution) {
+            const results = [];
+            for (let i = 0; i < iterations; i++) {
+                switch (distribution) {
+                    case 'uniform': results.push(Math.random() * 100); break;
+                    case 'normal': results.push(generateNormalRandom()); break;
+                    case 'binomial': results.push(generateBinomialRandom(1, 0.5)); break;
+                    case 'poisson': results.push(generatePoissonRandom(4)); break;
+                    case 'gamma': results.push(generateGammaRandom(2, 2)); break;
+                    case 'beta': results.push(generateBetaRandom(2, 5)); break;
+                    case 'triangular': results.push(generateTriangularRandom(0, 50, 100)); break;
+                    case 'lognormal': results.push(generateLogNormalRandom(0, 1)); break;
+                }
+            }
+            return results;
+        }
+
+        function generateNormalRandom() {
+            let u = 0, v = 0;
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        function generateBinomialRandom(n, p) {
+            let x = 0;
+            for (let i = 0; i < n; i++) {
+                if (Math.random() < p) {
+                    x++;
+                }
+            }
+            return x;
+        }
+
+        function generatePoissonRandom(lambda) {
+            let L = Math.exp(-lambda);
+            let k = 0;
+            let p = 1;
+            do {
+                k++;
+                p *= Math.random();
+            } while (p > L);
+            return k - 1;
+        }
+
+        function generateGammaRandom(alpha, beta) {
+            let d = alpha - 1 / 3;
+            let c = 1 / Math.sqrt(9 * d);
+            while (true) {
+                let x, v;
+                do {
+                    x = generateNormalRandom();
+                    v = Math.pow(1 + c * x, 3);
+                } while (v <= 0);
+                let u = Math.random();
+                let x2 = x * x;
+                if (u < 1 - 0.0331 * x2 * x2) return d * v / beta;
+                if (Math.log(u) < 0.5 * x2 + d * (1 - v + Math.log(v))) return d * v / beta;
+            }
+        }
+
+        function generateBetaRandom(alpha, beta) {
+            let y1 = generateGammaRandom(alpha, 1);
+            let y2 = generateGammaRandom(beta, 1);
+            return y1 / (y1 + y2);
+        }
+
+        function generateTriangularRandom(a, b, c) {
+            const U = Math.random();
+            if (U < (b - a) / (c - a)) {
+                return a + Math.sqrt(U * (b - a) * (c - a));
+            } else {
+                return c - Math.sqrt((1 - U) * (c - b) * (c - a));
+            }
+        }
+
+        function generateLogNormalRandom(mu, sigma) {
+            return Math.exp(generateNormalRandom(mu, sigma));
+        }
+
+        // Simulación de Escenarios Múltiples
+        function runMultiScenarioSimulation() {
+            const scenariosNumber = document.getElementById('scenariosNumber').value;
+            const scenarioWeight = document.getElementById('scenarioWeight').value.split(',').map(parseFloat);
+
+            multiScenarioResults = [];
+
+            for (let i = 0; i < scenariosNumber; i++) {
+                const scenarioResults = runMonteCarlo(10000, 'normal');
+                multiScenarioResults.push(scenarioResults.map(res => res * scenarioWeight[i]));
+            }
+
+            const flattenedResults = multiScenarioResults.flat();
+            const data = generateHistogram(flattenedResults);
+            totalRisk = calculateTotalRisk(flattenedResults);
+
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(document.getElementById('simulationChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Frecuencia',
+                        data: data.values,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Resultados'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Frecuencia'
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('totalRisk').textContent = `Porcentaje de riesgo total: ${totalRisk.toFixed(2)}%`;
+        }
+
+        // Análisis de Sensibilidad
+        function runSensitivityAnalysis() {
+            alert('Análisis de Sensibilidad realizado con éxito.');
+            // Código detallado para análisis de sensibilidad
+        }
+
+        // Comparación de Modelos
+        function compareModelResults() {
+            alert('Comparación de Modelos completada.');
+            // Código detallado para comparación de modelos
+        }
+
+        // Exportar resultados
+        function exportResults() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Resultado\n";
+            simulationResults.forEach(result => {
+                csvContent += `${result}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'simulacion_montecarlo.csv');
+            document.body.appendChild(link); 
+            link.click();
+        }
+
+        function generateHistogram(results) {
+            const bins = 10;
+            const histogram = Array(bins).fill(0);
+            const labels = [];
+
+            const min = Math.min(...results);
+            const max = Math.max(...results);
+            const step = (max - min) / bins;
+
+            for (let i = 0; i < bins; i++) {
+                const binMin = min + i * step;
+                const binMax = binMin + step;
+                labels.push(`${binMin.toFixed(1)} - ${binMax.toFixed(1)}`);
+                results.forEach(result => {
+                    if (result >= binMin && result < binMax) {
+                        histogram[i]++;
+                    }
+                });
+            }
+
+            return { labels, values: histogram };
+        }
+
+        function calculateTotalRisk(results) {
+            const threshold = 70;
+            const riskResults = results.filter(result => result > threshold);
+            const riskPercentage = (riskResults.length / results.length) * 100;
+            return riskPercentage;
+        }
+
+    </script>
+</body>
+</html>

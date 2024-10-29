@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama de Gantt Avanzado</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            width: 250px;
+            transition: all 0.3s;
+        }
+        .sidebar.collapsed {
+            width: 60px;
+        }
+        .main-content {
+            transition: all 0.3s;
+        }
+        .gantt-chart {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            overflow-x: auto;
+        }
+        .gantt-labels {
+            background-color: #f3f4f6;
+        }
+        .gantt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+        }
+        .gantt-bar {
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+        .dark .gantt-bar {
+            background-color: #60a5fa;
+        }
+        .task-form, .resource-form {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .task-form.active, .resource-form.active {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar bg-white dark:bg-gray-800 shadow-lg">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold mb-6">Gantt Pro</h1>
+                <nav>
+                    <ul>
+                        <li class="mb-4">
+                            <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                Tareas
+                            </a>
+                        </li>
+                        <li class="mb-4">
+                            <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                                Diagrama
+                            </a>
+                        </li>
+                        <li class="mb-4">
+                            <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                Recursos
+                            </a>
+                        </li>
+                        <li class="mb-4">
+                            <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                Configuración
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 p-4">
+                <button id="themeToggle" class="w-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    Cambiar Tema
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-auto">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4">Gestión de Tareas</h2>
+                <button id="toggleTaskForm" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg mb-4">
+                    Agregar Tarea
+                </button>
+                <div id="taskForm" class="task-form bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                    <form id="addTaskForm">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="taskName" class="block mb-2">Nombre de la tarea</label>
+                                <input type="text" id="taskName" name="taskName" class="w-full px-3 py-2 border rounded-lg" required>
+                            </div>
+                            <div>
+                                <label for="taskStart" class="block mb-2">Fecha de inicio</label>
+                                <input type="date" id="taskStart" name="taskStart" class="w-full px-3 py-2 border rounded-lg" required>
+                            </div>
+                            <div>
+                                <label for="taskEnd" class="block mb-2">Fecha de fin</label>
+                                <input type="date" id="taskEnd" name="taskEnd" class="w-full px-3 py-2 border rounded-lg" required>
+                            </div>
+                            <div>
+                                <label for="taskPriority" class="block mb-2">Prioridad</label>
+                                <select id="taskPriority" name="taskPriority" class="w-full px-3 py-2 border rounded-lg">
+                                    <option value="low">Baja</option>
+                                    <option value="medium">Media</option>
+                                    <option value="high">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Guardar Tarea</button>
+                    </form>
+                </div>
+                <div id="taskList" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                    <!-- Task list will be populated here -->
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4">Diagrama de Gantt</h2>
+                <div class="gantt-chart bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+                    <div class="gantt-labels">
+                        <!-- Task labels will be populated here -->
+                    </div>
+                    <div class="gantt-grid">
+                        <!-- Gantt chart grid and bars will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4">Gestión de Recursos</h2>
+                <button id="toggleResourceForm" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg mb-4">
+                    Agregar Recurso
+                </button>
+                <div id="resourceForm" class="resource-form bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                    <form id="addResourceForm">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="resourceName" class="block mb-2">Nombre del recurso</label>
+                                <input type="text" id="resourceName" name="resourceName" class="w-full px-3 py-2 border rounded-lg" required>
+                            </div>
+                            <div>
+                                <label for="resourceType" class="block mb-2">Tipo de recurso</label>
+                                <select id="resourceType" name="resourceType" class="w-full px-3 py-2 border rounded-lg">
+                                    <option value="human">Humano</option>
+                                    <option value="material">Material</option>
+                                    <option value="financial">Financiero</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">Guardar Recurso</button>
+                    </form>
+                </div>
+                <div id="resourceList" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                    <!-- Resource list will be populated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+        });
+
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        // Task management
+        const tasks = [];
+        const addTaskForm = document.getElementById('addTaskForm');
+        const taskList = document.getElementById('taskList');
+        const toggleTaskForm = document.getElementById('toggleTaskForm');
+        const taskFormContainer = document.getElementById('taskForm');
+
+        toggleTaskForm.addEventListener('click', () => {
+            taskFormContainer.classList.toggle('active');
+        });
+
+        addTaskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const task = {
+                id: Date.now(),
+                name: document.getElementById('taskName').value,
+                start: document.getElementById('taskStart').value,
+                end: document.getElementById('taskEnd').value,
+                priority: document.getElementById('taskPriority').value
+            };
+            tasks.push(task);
+            addTaskForm.reset();
+            updateTaskList();
+            updateGanttChart();
+        });
+
+        function updateTaskList() {
+            taskList.innerHTML = '';
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                
+                taskElement.className = 'p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center';
+                taskElement.innerHTML = `
+                    <div>
+                        <h3 class="font-bold">${task.name}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${task.start} - ${task.end}</p>
+                    </div>
+                    <div>
+                        <span class="px-2 py-1 rounded-full text-xs ${getPriorityClass(task.priority)}">${task.priority}</span>
+                        <button onclick="deleteTask(${task.id})" class="ml-2 text-red-500 hover:text-red-600">Eliminar</button>
+                    </div>
+                `;
+                taskList.appendChild(taskElement);
+            });
+        }
+
+        function deleteTask(id) {
+            const index = tasks.findIndex(task => task.id === id);
+            if (index !== -1) {
+                tasks.splice(index, 1);
+                updateTaskList();
+                updateGanttChart();
+            }
+        }
+
+        function getPriorityClass(priority) {
+            switch (priority) {
+                case 'low': return 'bg-green-200 text-green-800';
+                case 'medium': return 'bg-yellow-200 text-yellow-800';
+                case 'high': return 'bg-red-200 text-red-800';
+                default: return 'bg-gray-200 text-gray-800';
+            }
+        }
+
+        // Gantt chart
+        const ganttLabels = document.querySelector('.gantt-labels');
+        const ganttGrid = document.querySelector('.gantt-grid');
+
+        function updateGanttChart() {
+            ganttLabels.innerHTML = '';
+            ganttGrid.innerHTML = '';
+
+            const startDate = new Date(Math.min(...tasks.map(task => new Date(task.start))));
+            const endDate = new Date(Math.max(...tasks.map(task => new Date(task.end))));
+            const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+
+            tasks.forEach(task => {
+                const labelElement = document.createElement('div');
+                labelElement.className = 'p-2 border-b border-gray-200 dark:border-gray-700';
+                labelElement.textContent = task.name;
+                ganttLabels.appendChild(labelElement);
+
+                const gridElement = document.createElement('div');
+                gridElement.className = 'relative h-10 border-b border-gray-200 dark:border-gray-700';
+                
+                const taskStart = new Date(task.start);
+                const taskEnd = new Date(task.end);
+                const left = ((taskStart - startDate) / (1000 * 60 * 60 * 24)) / totalDays * 100;
+                const width = ((taskEnd - taskStart) / (1000 * 60 * 60 * 24)) / totalDays * 100;
+
+                const bar = document.createElement('div');
+                bar.className = 'gantt-bar absolute top-2 h-6';
+                bar.style.left = `${left}%`;
+                bar.style.width = `${width}%`;
+                gridElement.appendChild(bar);
+
+                ganttGrid.appendChild(gridElement);
+            });
+        }
+
+        // Resource management
+        const resources = [];
+        const addResourceForm = document.getElementById('addResourceForm');
+        const resourceList = document.getElementById('resourceList');
+        const toggleResourceForm = document.getElementById('toggleResourceForm');
+        const resourceFormContainer = document.getElementById('resourceForm');
+
+        toggleResourceForm.addEventListener('click', () => {
+            resourceFormContainer.classList.toggle('active');
+        });
+
+        addResourceForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const resource = {
+                id: Date.now(),
+                name: document.getElementById('resourceName').value,
+                type: document.getElementById('resourceType').value
+            };
+            resources.push(resource);
+            addResourceForm.reset();
+            updateResourceList();
+        });
+
+        function updateResourceList() {
+            resourceList.innerHTML = '';
+            resources.forEach(resource => {
+                const resourceElement = document.createElement('div');
+                resourceElement.className = 'p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center';
+                resourceElement.innerHTML = `
+                    <div>
+                        <h3 class="font-bold">${resource.name}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${resource.type}</p>
+                    </div>
+                    <button onclick="deleteResource(${resource.id})" class="text-red-500 hover:text-red-600">Eliminar</button>
+                `;
+                resourceList.appendChild(resourceElement);
+            });
+        }
+
+        function deleteResource(id) {
+            const index = resources.findIndex(resource => resource.id === id);
+            if (index !== -1) {
+                resources.splice(index, 1);
+                updateResourceList();
+            }
+        }
+
+        // Initialize
+        updateTaskList();
+        updateGanttChart();
+        updateResourceList();
+    </script>
+</body>
+</html>

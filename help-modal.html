@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda del Sistema</title>
+    <link rel="stylesheet" href="../css/help-modal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Botón de Ayuda Flotante -->
+    <button id="help-button" class="help-button">
+        <i class="fas fa-question-circle"></i>
+    </button>
+
+    <!-- Modal de Ayuda -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <!-- Encabezado del Modal -->
+            <div class="modal-header">
+                <h2><i class="fas fa-question-circle"></i> Centro de Ayuda</h2>
+                <button class="close-button">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Barra de Búsqueda -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="help-search" placeholder="Buscar en la ayuda...">
+                </div>
+            </div>
+
+            <!-- Contenido Principal -->
+            <div class="help-content">
+                <!-- Navegación de Pestañas -->
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="guide">
+                        <i class="fas fa-book"></i> Guía
+                    </button>
+                    <button class="tab-button" data-tab="faq">
+                        <i class="fas fa-question"></i> FAQ
+                    </button>
+                    <button class="tab-button" data-tab="tutorials">
+                        <i class="fas fa-video"></i> Tutoriales
+                    </button>
+                    <button class="tab-button" data-tab="contact">
+                        <i class="fas fa-envelope"></i> Contacto
+                    </button>
+                </div>
+
+                <!-- Contenido de las Pestañas -->
+                <div class="tab-content">
+                    <!-- Guía de Usuario -->
+                    <div id="guide" class="tab-pane active">
+                        <div class="guide-section">
+                            <h3>Primeros Pasos</h3>
+                            <div class="guide-item">
+                                <h4>1. Inicio de Sesión</h4>
+                                <p>Aprende cómo iniciar sesión y configurar tu cuenta.</p>
+                                <button class="btn-link">Ver más <i class="fas fa-arrow-right"></i></button>
+                            </div>
+                            <div class="guide-item">
+                                <h4>2. Navegación Básica</h4>
+                                <p>Conoce la interfaz y las principales funciones.</p>
+                                <button class="btn-link">Ver más <i class="fas fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preguntas Frecuentes -->
+                    <div id="faq" class="tab-pane">
+                        <div class="faq-section">
+                            <div class="faq-item">
+                                <div class="faq-question">
+                                    <h4>¿Cómo puedo restablecer mi contraseña?</h4>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>Para restablecer tu contraseña, sigue estos pasos...</p>
+                                </div>
+                            </div>
+                            <!-- Más preguntas FAQ -->
+                        </div>
+                    </div>
+
+                    <!-- Tutoriales en Video -->
+                    <div id="tutorials" class="tab-pane">
+                        <div class="tutorials-grid">
+                            <div class="tutorial-card">
+                                <div class="tutorial-thumbnail">
+                                    <img src="../assets/tutorial-thumb.jpg" alt="Tutorial">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                                <h4>Introducción al Sistema</h4>
+                                <p>Duración: 5:30 min</p>
+                            </div>
+                            <!-- Más tarjetas de tutoriales -->
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Contacto -->
+                    <div id="contact" class="tab-pane">
+                        <form id="support-form" class="contact-form">
+                            <div class="form-group">
+                                <label for="support-topic">Tema:</label>
+                                <select id="support-topic" required>
+                                    <option value="">Seleccione un tema</option>
+                                    <option value="technical">Problema Técnico</option>
+                                    <option value="account">Cuenta</option>
+                                    <option value="feature">Sugerencia</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="support-message">Mensaje:</label>
+                                <textarea id="support-message" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-paper-plane"></i> Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie del Modal -->
+            <div class="modal-footer">
+                <div class="quick-links">
+                    <a href="#"><i class="fas fa-book"></i> Documentación</a>
+                    <a href="#"><i class="fas fa-graduation-cap"></i> Academia</a>
+                    <a href="#"><i class="fas fa-comments"></i> Comunidad</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Video Tutorial -->
+    <div id="video-modal" class="modal">
+        <div class="modal-content video-content">
+            <button class="close-button">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="video-container">
+                <!-- El iframe del video se insertará aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/help-modal.js"></script>
+</body>
+</html>

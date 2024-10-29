@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Data Analyzer</title>
+    <link rel="stylesheet" href="../css/error.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="error-container">
+        <!-- Animación de Error -->
+        <div class="error-animation">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+
+        <!-- Contenido del Error -->
+        <div class="error-content">
+            <h1 id="error-title">Error</h1>
+            <p id="error-message">Lo sentimos, ha ocurrido un error inesperado.</p>
+            <p id="error-code"></p>
+            <div class="error-details" id="error-details">
+                <!-- Detalles técnicos del error se mostrarán aquí -->
+            </div>
+        </div>
+
+        <!-- Acciones Disponibles -->
+        <div class="error-actions">
+            <button id="go-home" class="btn-primary">
+                <i class="fas fa-home"></i>
+                Regresar al Inicio
+            </button>
+            <button id="contact-support" class="btn-secondary">
+                <i class="fas fa-headset"></i>
+                Contactar Soporte
+            </button>
+            <button id="report-error" class="btn-outline">
+                <i class="fas fa-bug"></i>
+                Reportar Error
+            </button>
+        </div>
+
+        <!-- Sugerencias -->
+        <div class="error-suggestions">
+            <h3>Puede intentar lo siguiente:</h3>
+            <ul>
+                <li><i class="fas fa-sync"></i> Recargar la página</li>
+                <li><i class="fas fa-trash"></i> Limpiar la caché del navegador</li>
+                <li><i class="fas fa-sign-in-alt"></i> Iniciar sesión nuevamente</li>
+            </ul>
+        </div>
+
+        <!-- Modal de Reporte de Error -->
+        <div id="report-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Reportar Error</h2>
+                <form id="error-report-form">
+                    <div class="form-group">
+                        <label for="user-description">Describa lo que estaba haciendo:</label>
+                        <textarea id="user-description" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email">Su correo electrónico:</label>
+                        <input type="email" id="user-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="include-details">
+                            Incluir detalles técnicos del error
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary">Enviar Reporte</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/error.js"></script>
+</body>
+</html>

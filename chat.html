@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en Tiempo Real</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/chat.css">
+    <!-- Incluir Socket.io para funcionalidad de WebSockets -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/chat">Chat</a></li>
+            <li><a href="/chat/room1">Sala 1</a></li>
+            <li><a href="/chat/room2">Sala 2</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Chat en Tiempo Real</h1>
+        
+        <!-- Área de Chat -->
+        <div class="chat-container">
+            <div class="messages" id="message-container"></div>
+            <div class="chat-controls">
+                <input type="text" id="message-input" placeholder="Escribe un mensaje...">
+                <input type="file" id="file-input">
+                <button id="send-message" class="btn-primary">Enviar Mensaje</button>
+                <button id="attach-file" class="btn-secondary">Adjuntar Archivo</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/chat.js"></script>
+</body>
+</html>
+

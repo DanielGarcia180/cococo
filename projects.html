@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Proyectos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/projects.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/projects">Proyectos</a></li>
+            <li><a href="/projects/tasks">Tareas</a></li>
+            <li><a href="/projects/team">Equipo</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Gestión de Proyectos</h1>
+        
+        <!-- Botones de Acción -->
+        <div class="action-buttons">
+            <button id="create-project" class="btn-primary">Crear Proyecto</button>
+        </div>
+
+        <!-- Lista de Proyectos -->
+        <div class="projects-list">
+            <table id="projects-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los proyectos se cargarán dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal Crear/Editar Proyecto -->
+        <div id="project-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modal-title">Crear Nuevo Proyecto</h2>
+                <form id="project-form">
+                    <input type="hidden" id="project-id">
+                    <div class="form-group">
+                        <label for="project-name">Nombre del Proyecto:</label>
+                        <input type="text" id="project-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-description">Descripción:</label>
+                        <textarea id="project-description" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="start-date">Fecha de Inicio:</label>
+                        <input type="date" id="start-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end-date">Fecha de Fin:</label>
+                        <input type="date" id="end-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-team">Equipo:</label>
+                        <select id="project-team" multiple>
+                            <!-- Los miembros del equipo se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Asignar Tareas -->
+        <div id="tasks-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Asignar Tareas</h2>
+                <div class="tasks-container">
+                    <div class="task-form">
+                        <div class="form-group">
+                            <label for="task-name">Nombre de la Tarea:</label>
+                            <input type="text" id="task-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="assignee">Asignar a:</label>
+                            <select id="assignee">
+                                <!-- Los miembros del equipo se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        <button id="add-task" class="btn-secondary">Agregar Tarea</button>
+                    </div>
+                    <div class="tasks-list">
+                        <!-- Las tareas asignadas se mostrarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Confirmación -->
+        <div id="confirm-modal" class="modal">
+            <div class="modal-content">
+                <h3>Confirmar Eliminación</h3>
+                <p>¿Está seguro de que desea eliminar este proyecto?</p>
+                <div class="modal-actions">
+                    <button id="confirm-delete" class="btn-danger">Eliminar</button>
+                    <button id="cancel-delete" class="btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/projects.js"></script>
+</body>
+</html>
+

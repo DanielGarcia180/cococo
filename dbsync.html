@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sincronización de Bases de Datos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/dbsync.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/dbsync">Sincronización de BD</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Sincronización de Bases de Datos</h1>
+        
+        <!-- Controles de Sincronización -->
+        <div class="sync-controls">
+            <button id="start-sync" class="btn-primary">Sincronizar Ahora</button>
+            <button id="config-sync" class="btn-secondary">Configurar Sincronización</button>
+            <button id="view-history" class="btn-secondary">Ver Historial</button>
+        </div>
+
+        <!-- Estado de Sincronización -->
+        <div class="sync-status">
+            <h2>Estado de la Sincronización</h2>
+            <div id="sync-progress" class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            <p id="sync-message">No hay sincronización en curso</p>
+        </div>
+
+        <!-- Historial de Sincronización -->
+        <div class="sync-history">
+            <h2>Historial de Sincronización</h2>
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Base de Datos</th>
+                        <th>Estado</th>
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- El historial se cargará dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal de Configuración -->
+    <div id="config-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Configuración de Sincronización</h2>
+            <form id="sync-config-form">
+                <div class="form-group">
+                    <label for="sync-frequency">Frecuencia de Sincronización:</label>
+                    <select id="sync-frequency" name="frequency">
+                        <option value="hourly">Cada hora</option>
+                        <option value="daily">Diaria</option>
+                        <option value="weekly">Semanal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="source-db">Base de Datos Origen:</label>
+                    <input type="text" id="source-db" name="source">
+                </div>
+                <div class="form-group">
+                    <label for="target-db">Base de Datos Destino:</label>
+                    <input type="text" id="target-db" name="target">
+                </div>
+                <button type="submit" class="btn-primary">Guardar Configuración</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/dbsync.js"></script>
+</body>
+</html>
+

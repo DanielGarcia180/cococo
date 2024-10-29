@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Feedback</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/feedback-history.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/feedback-history">Historial de Feedback</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Historial de Feedback</h1>
+        
+        <!-- Tabla de Historial de Feedback -->
+        <table id="feedback-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Feedback</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se cargarán dinámicamente aquí -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para Ver Feedback Detallado -->
+    <div id="feedback-detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Feedback Detallado</h2>
+            <p id="feedback-detail"></p>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/feedback-history.js"></script>
+</body>
+</html>
+

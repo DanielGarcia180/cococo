@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colaboración en Tiempo Real</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/realTime.css">
+    <!-- Incluir Socket.io para WebSockets -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/real-time">Colaboración en Tiempo Real</a></li>
+            <li><a href="/shared-charts">Gráficos Compartidos</a></li>
+            <li><a href="/team-analysis">Análisis en Equipo</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Colaboración en Tiempo Real</h1>
+
+        <!-- Panel de Usuarios Conectados -->
+        <div class="users-panel">
+            <h2>Usuarios Conectados</h2>
+            <div id="connected-users"></div>
+        </div>
+
+        <!-- Área de Trabajo Colaborativo -->
+        <div class="collaboration-area">
+            <!-- Área de Análisis Compartido -->
+            <div class="shared-analysis">
+                <h2>Análisis Compartido</h2>
+                <div id="analysis-content"></div>
+                <button id="share-analysis" class="btn-primary">Compartir Análisis</button>
+                <input type="file" id="analysis-file" accept=".csv,.xlsx,.json">
+            </div>
+
+            <!-- Chat en Tiempo Real -->
+            <div class="real-time-chat">
+                <h2>Chat del Equipo</h2>
+                <div id="chat-messages" class="messages-container"></div>
+                <div class="chat-input">
+                    <input type="text" id="message-input" placeholder="Escribe un mensaje...">
+                    <button id="send-message" class="btn-primary">Enviar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Archivos Compartidos -->
+        <div class="shared-files">
+            <h2>Archivos Compartidos</h2>
+            <div class="file-upload">
+                <input type="file" id="file-input" multiple>
+                <button id="upload-file" class="btn-secondary">Subir Archivo</button>
+            </div>
+            <div id="files-list" class="files-container"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Compartir Análisis -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Compartir Análisis</h2>
+            <div class="share-options">
+                <select id="share-type">
+                    <option value="all">Compartir con Todos</option>
+                    <option value="select">Seleccionar Usuarios</option>
+                </select>
+                <div id="users-list" class="users-list" style="display: none;">
+                    <!-- Lista de usuarios se cargará dinámicamente -->
+                </div>
+                <button id="confirm-share" class="btn-primary">Compartir</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/realTime.js"></script>
+</body>
+</html>
+

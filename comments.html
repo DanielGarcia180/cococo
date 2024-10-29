@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comentarios en Tiempo Real</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/comments.css">
+    <!-- Incluir Socket.io para funcionalidad de WebSockets -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/comments">Comentarios</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Comentarios en Tiempo Real</h1>
+        
+        <!-- Área de Comentarios -->
+        <div class="comments-container">
+            <textarea id="comment-input" placeholder="Escribe un comentario..."></textarea>
+            <button id="send-comment" class="btn-primary">Enviar Comentario</button>
+        </div>
+
+        <!-- Lista de Comentarios -->
+        <div id="comments-list">
+            <!-- Los comentarios se cargarán dinámicamente aquí -->
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/comments.js"></script>
+</body>
+</html>
+

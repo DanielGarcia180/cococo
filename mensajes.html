@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Team Management Dashboard</title>
+    <style>
+        :root {
+            --primary: #0078d4;
+            --primary-foreground: #ffffff;
+            --background: #f3f2f1;
+            --foreground: #252423;
+            --muted: #f3f2f1;
+            --muted-foreground: #605e5c;
+            --card: #ffffff;
+            --card-foreground: #252423;
+            --border: #edebe9;
+            --input: #edebe9;
+            --ring: #0078d4;
+            --important: #a80000;
+            --not-important: #605e5c;
+        }
+
+        .dark-theme {
+            --primary: #2b88d8;
+            --primary-foreground: #ffffff;
+            --background: #201f1e;
+            --foreground: #ffffff;
+            --muted: #3b3a39;
+            --muted-foreground: #c8c6c4;
+            --card: #323130;
+            --card-foreground: #ffffff;
+            --border: #484644;
+            --input: #3b3a39;
+            --ring: #2b88d8;
+            --important: #f1707b;
+            --not-important: #c8c6c4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .header {
+            background-color: var(--card);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content {
+            padding: 1rem;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+        }
+
+        .card {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .button {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--input);
+            border-radius: 0.25rem;
+            font-size: 1rem;
+            background-color: var(--card);
+            color: var(--foreground);
+        }
+
+        .avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--muted-foreground);
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .team-member {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s;
+        }
+
+        .team-member:hover {
+            background-color: var(--muted);
+        }
+
+        .team-member-info {
+            margin-left: 0.5rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            position: relative;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            background-color: var(--muted);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: var(--muted-foreground);
+        }
+
+        .message-importance {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .message-importance.important {
+            background-color: var(--important);
+            color: var(--primary-foreground);
+        }
+
+        .message-importance.not-important {
+            background-color: var(--not-important);
+            color: var(--primary-foreground);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary);
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            background-color: var(--muted);
+        }
+
+        .task input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        .badge {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+
+        #calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .calendar-day:hover {
+            background-color: var(--muted);
+        }
+
+        .calendar-day.active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid var(--border);
+            width: 80%;
+            max-width: 500px;
+            border-radius: 0.5rem;
+        }
+
+        .close {
+            color: var(--muted-foreground);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: var(--foreground);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .conversation-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .conversation-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .conversation-item:hover {
+            background-color: var(--muted);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            margin-top: 1rem;
+        }
+
+        .sidebar-nav .button {
+            text-align: left;
+            margin-bottom: 0.5rem;
+            background-color: transparent;
+            color: var(--foreground);
+        }
+
+        .sidebar-nav .button:hover {
+            background-color: var(--muted);
+        }
+
+        .sidebar-nav .button.active {
+            background-color: var(--muted);
+            font-weight: bold;
+        }
+
+        .message-list {
+            flex: 2;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .message-detail {
+            flex: 3;
+            border-left: 1px solid var(--border);
+            padding-left: 1rem;
+        }
+
+        .theme-switch {
+            background-color: transparent;
+            border: none;
+            color: var(--foreground);
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-profile-info {
+            margin-left: 0.5rem;
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: bold;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: var(--muted-foreground);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: var(--card);
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 0.25rem;
+        }
+
+        .dropdown-content a {
+            color: var(--foreground);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--muted);
+        }
+
+        .show {
+            display: block;
+        }
+
+        .file-upload {
+            display: none;
+        }
+
+        .file-upload-label {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border-radius: 0.25rem;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .file-upload-label:hover {
+            opacity: 0.9;
+        }
+
+        #fileList {
+            margin-top: 1rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background-color: var(--muted);
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-item button {
+            background-color: var(--important);
+            color: var(--primary-foreground);
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+
+        .file-item button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Team Management</h2>
+            <input type="search" id="userSearch" placeholder="Search..." class="input" style="margin: 1rem 0;">
+            <nav class="sidebar-nav">
+                <button class="button active" onclick="showTab('inbox')">Inbox</button>
+                <button class="button" onclick="showTab('tasks')">Tasks</button>
+                <button class="button" onclick="showTab('calendar')">Calendar</button>
+                <button class="button" onclick="showTab('teams')">Teams</button>
+                <button class="button" onclick="showTab('files')">Files</button>
+                <button class="button" onclick="showModal('settingsModal')">Settings</button>
+                <button class="button" onclick="window.location.href='home.html'">Home</button>
+                <button class="button" onclick="window.location.href='apps.html'">App</button>
+            </nav>
+            <hr style="margin: 1rem 0;">
+            <h3>Team Members</h3>
+            <div id="teamMembers"></div>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>Dashboard</h1>
+                <div style="display: flex; align-items: center;">
+                    <button class="theme-switch" id="themeSwitch">🌓</button>
+                    <button class="button" style="margin-left: 1rem;" onclick="showModal('notificationsModal')">Notifications</button>
+                    <div class="dropdown" style="margin-left: 1rem;">
+                        <div class="user-profile" onclick="toggleDropdown()">
+                            <div class="avatar" id="userAvatar"></div>
+                            <div class="user-profile-info">
+                                <div class="user-name" id="userName"></div>
+                                <div class="user-email" id="userEmail"></div>
+                            </div>
+                        </div>
+                        <div id="userDropdown" class="dropdown-content">
+                            <a href="#" onclick="showModal('profileModal')">Edit Profile</a>
+                            <a href="#" onclick="logout()">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="content">
+                <div id="inboxTab" class="message-list">
+                    <h2>Inbox</h2>
+                    <div id="messageList"></div>
+                </div>
+                <div id="messageDetailTab" class="message-detail">
+                    <h2>Message Detail</h2>
+                    <div id="messageDetail"></div>
+                    <form id="messageForm" style="margin-top: 1rem;">
+                        <textarea id="messageInput" placeholder="Type your reply..." class="input" 
+                            style="margin-bottom: 0.5rem; resize: vertical;"></textarea>
+                        <select id="messageImportance" class="input" style="margin-bottom: 0.5rem;">
+                            <option value="normal">Normal</option>
+                            <option value="important">Important</option>
+                            <option value="not-important">Not Important</option>
+                        </select>
+                        <button type="submit" class="button">Send</button>
+                    </form>
+                </div>
+                <div id="tasksTab" class="card" style="display: none; width: 100%;">
+                    <h2>Tasks</h2>
+                    <div id="taskList"></div>
+                    <form id="taskForm">
+                        <input type="text" id="taskInput" placeholder="New task..." class="input"
+                            style="margin-bottom: 0.5rem;">
+                        <select id="taskPriority" class="input" style="margin-bottom: 0.5rem;">
+                            <option value="low">Low Priority</option>
+                            <option value="medium">Medium Priority</option>
+                            <option value="high">High Priority</option>
+                        </select>
+                        <select id="taskAssignee" class="input" style="margin-bottom: 0.5rem;">
+                            <option value="">Assign to...</option>
+                        </select>
+                        <button type="submit" class="button">Add Task</button>
+                    </form>
+                </div>
+                <div id="calendarTab" class="card" style="display: none; width: 100%;">
+                    <h2>Team Calendar</h2>
+                    <div id="calendar"></div>
+                </div>
+                <div id="teamsTab" class="card" style="display: none; width: 100%;">
+                    <h2>Teams</h2>
+                    <div id="teamList"></div>
+                    <button class="button" onclick="showModal('createTeamModal')">Create New Team</button>
+                </div>
+                <div id="filesTab" class="card" style="display: none; width: 100%;">
+                    <h2>Files</h2>
+                    <input type="file" id="fileUpload" class="file-upload" multiple>
+                    <label for="fileUpload" class="file-upload-label">Upload Files</label>
+                    <div id="fileList"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            <h2>Settings</h2>
+            <form id="settingsForm">
+                <label for="receiveMessages">Receive messages from contacts:</label>
+                <input type="checkbox" id="receiveMessages" checked><br><br>
+                <label for="emailNotifications">Email notifications:</label>
+                <input type="checkbox" id="emailNotifications" checked><br><br>
+                <button type="submit" class="button">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="notificationsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('notificationsModal')">&times;</span>
+            <h2>Notifications</h2>
+            <div id="notificationList"></div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            <h2>Your Profile</h2>
+            <form id="profileForm">
+                <label for="profileName">Name:</label>
+                <input type="text" id="profileName" class="input"><br><br>
+                <label for="profileEmail">Email:</label>
+                <input type="email" id="profileEmail" class="input"><br><br>
+                <label for="profileBio">Bio:</label>
+                <textarea id="profileBio" class="input"></textarea><br><br>
+                <label for="profileAvatar">Profile Picture:</label>
+                <input type="file" id="profileAvatar" accept="image/*"><br><br>
+                <button type="submit" class="button">Update Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="createTeamModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createTeamModal')">&times;</span>
+            <h2>Create New Team</h2>
+            <form id="createTeamForm">
+                <label for="teamName">Team Name:</label>
+                <input type="text" id="teamName" class="input"><br><br>
+                <label for="teamDescription">Description:</label>
+                <textarea id="teamDescription" class="input"></textarea><br><br>
+                <label for="teamPrivate">Private Team:</label>
+                <input type="checkbox" id="teamPrivate"><br><br>
+                <button type="submit" class="button">Create Team</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mock data
+        let currentUser = { id: 0, name: 'You', role: 'Developer', email: 'you@example.com', avatar: '/placeholder.svg' };
+        let teamMembers = [
+            { id: 1, name: 'John Doe', role: 'Developer' },
+            { id: 2, name: 'Jane Smith', role: 'Designer' },
+            { id: 3, name: 'Mike Johnson', role: 'Manager' },
+        ];
+        let teams = [
+            { id: 1, name: 'Development Team', description: 'Main development team', private: false, members: [0, 1, 2] },
+            { id: 2, name: 'Design Team', description: 'UI/UX design team', private: false, members: [0, 2] },
+        ];
+
+        // Initialize data from localStorage or use default values
+        let messages = JSON.parse(localStorage.getItem('messages')) || [];
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        let settings = JSON.parse(localStorage.getItem('settings')) || { receiveMessages: true, emailNotifications: true };
+        let conversations = JSON.parse(localStorage.getItem('conversations')) || [];
+        let files = JSON.parse(localStorage.getItem('files')) || [];
+
+        // DOM Elements
+        const teamMembersContainer = document.getElementById('teamMembers');
+        const messageList = document.getElementById('messageList');
+        const messageDetail = document.getElementById('messageDetail');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const messageImportance = document.getElementById('messageImportance');
+        const taskList = document.getElementById('taskList');
+        const taskForm = document.getElementById('taskForm');
+        const taskInput = document.getElementById('taskInput');
+        const taskPriority = document.getElementById('taskPriority');
+        const taskAssignee = document.getElementById('taskAssignee');
+        const calendarContainer = document.getElementById('calendar');
+        const teamListContainer = document.getElementById('teamList');
+        const userSearchInput = document.getElementById('userSearch');
+        const notificationList = document.getElementById('notificationList');
+        const settingsForm = document.getElementById('settingsForm');
+        const profileForm = document.getElementById('profileForm');
+        const createTeamForm = document.getElementById('createTeamForm');
+        const themeSwitch = document.getElementById('themeSwitch');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
+        const fileUpload = document.getElementById('fileUpload');
+        const fileList = document.getElementById('fileList');
+
+        // Render team members
+        function renderTeamMembers() {
+            teamMembersContainer.innerHTML = teamMembers.map(member => `
+                <div class="team-member" onclick="startChat(${member.id})">
+                    <div class="avatar">${member.name[0]}</div>
+                    <div class="team-member-info">
+                        <div>${member.name}</div>
+                        <div style="font-size: 0.8rem; color: var(--muted-foreground);">${member.role}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            taskAssignee.innerHTML = `<option value="">Assign to...</option>` +
+                teamMembers.map(member => `<option value="${member.id}">${member.name}</option>`).join('');
+        }
+
+        // Render messages
+        function renderMessages() {
+            messageList.innerHTML = messages.map(message => `
+                <div class="message" onclick="showMessageDetail(${message.id})">
+                    <div class="message-header">
+                        <span class="message-sender">${message.sender}</span>
+                        <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                    <div>${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}</div>
+                    ${message.importance !== 'normal' ? `<span class="message-importance ${message.importance}">${message.importance}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Show message detail
+        function showMessageDetail(messageId) {
+            const message = messages.find(m => m.id === messageId);
+            if (message) {
+                messageDetail.innerHTML = `
+                    <div class="message">
+                        <div class="message-header">
+                            <span class="message-sender">${message.sender}</span>
+                            <span class="message-time">${new Date(message.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div>${message.content}</div>
+                        ${message.importance !== 'normal' ? `<span class="message-importance ${message.importance}">${message.importance}</span>` : ''}
+                    </div>
+                `;
+                messageInput.placeholder = `Reply to ${message.sender}...`;
+                messageInput.dataset.replyTo = messageId;
+            }
+        }
+
+        // Render tasks
+        function renderTasks() {
+            taskList.innerHTML = tasks.map((task, index) => `
+                <div class="task">
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
+                    <span style="${task.completed ? 'text-decoration: line-through;' : ''}">${task.content}</span>
+                    <span class="badge">${task.priority}</span>
+                    <span class="badge">${task.assignee ? teamMembers.find(m => m.id == task.assignee).name : 'Unassigned'}</span>
+                </div>
+            `).join('');
+        }
+
+        // Render teams
+        function renderTeams() {
+            teamListContainer.innerHTML = teams.map(team => `
+                <div class="card">
+                    <h3>${team.name}</h3>
+                    <p>${team.description}</p>
+                    <p>Members: ${team.members.length}</p>
+                    <p>${team.private ? 'Private' : 'Public'}</p>
+                </div>
+            `).join('');
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            let calendarHTML = '';
+            for (let i = 0; i < firstDay; i++) {
+                calendarHTML += '<div></div>';
+            }
+            for (let i = 1; i <= daysInMonth; i++) {
+                calendarHTML += `<div class="calendar-day ${i === today.getDate() ? 'active' : ''}">${i}</div>`;
+            }
+            calendarContainer.innerHTML = calendarHTML;
+        }
+
+        // Render notifications
+        function renderNotifications() {
+            notificationList.innerHTML = notifications.map(notification => `
+                <div class="notification">
+                    <p>${notification.content}</p>
+                    <small>${new Date(notification.timestamp).toLocaleString()}</small>
+                </div>
+            `).join('');
+        }
+
+        // Render files
+        function renderFiles() {
+            fileList.innerHTML = files.map((file, index) => `
+                <div class="file-item">
+                    <span>${file.name}</span>
+                    <button onclick="deleteFile(${index})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        // Show tab
+        function showTab(tabName) {
+            document.querySelectorAll('.sidebar-nav .button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.sidebar-nav .button:nth-child(${['inbox', 'tasks', 'calendar', 'teams', 'files'].indexOf(tabName) + 1})`).classList.add('active');
+            document.getElementById('inboxTab').style.display = tabName === 'inbox' ? 'block' : 'none';
+            document.getElementById('messageDetailTab').style.display = tabName === 'inbox' ? 'block' : 'none';
+            document.getElementById('tasksTab').style.display = tabName === 'tasks' ? 'block' : 'none';
+            document.getElementById('calendarTab').style.display = tabName === 'calendar' ? 'block' : 'none';
+            document.getElementById('teamsTab').style.display = tabName === 'teams' ? 'block' : 'none';
+            document.getElementById('filesTab').style.display = tabName === 'files' ? 'block' : 'none';
+        }
+
+        // Show modal
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Toggle task completion
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        // Start chat with user
+        function startChat(userId) {
+            const user = teamMembers.find(member => member.id === userId);
+            if (user) {
+                showTab('inbox');
+                messageInput.placeholder = `Message ${user.name}...`;
+                messageInput.dataset.replyTo = '';
+                // Filter messages for this specific chat
+                const chatMessages = messages.filter(m => m.to === userId || (m.from === userId && m.to === currentUser.id));
+                messageList.innerHTML = chatMessages.map(message => `
+                    <div class="message" onclick="showMessageDetail(${message.id})">
+                        <div class="message-header">
+                            <span class="message-sender">${message.from === currentUser.id ? 'You' : user.name}</span>
+                            <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <div>${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}</div>
+                        ${message.importance !== 'normal' ? `<span class="message-importance ${message.importance}">${message.importance}</span>` : ''}
+                    </div>
+                `).join('');
+                messageDetail.innerHTML = '';
+            }
+        }
+
+        // Toggle user dropdown
+        function toggleDropdown() {
+            document.getElementById("userDropdown").classList.toggle("show");
+        }
+
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-profile')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // Logout function
+        function logout() {
+            // In a real application, you would handle the logout process here
+            alert('Logout functionality would be implemented here.');
+        }
+
+        // Delete file
+        function deleteFile(index) {
+            files.splice(index, 1);
+            localStorage.setItem('files', JSON.stringify(files));
+            renderFiles();
+        }
+
+        // Event Listeners
+        messageForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (messageInput.value.trim() !== '') {
+                const newMessage = {
+                    id: messages.length + 1,
+                    from: currentUser.id,
+                    to: parseInt(messageInput.dataset.replyTo) || parseInt(messageInput.placeholder.split(' ')[1]),
+                    content: messageInput.value.trim(),
+                    importance: messageImportance.value,
+                    timestamp: new Date().toISOString()
+                };
+                messages.push(newMessage);
+                localStorage.setItem('messages', JSON.stringify(messages));
+
+                // Update or create conversation
+                let conversation = conversations.find(c => c.with === newMessage.to);
+                if (conversation) {
+                    conversation.lastMessage = newMessage.content;
+                } else {
+                    conversations.push({
+                        id: conversations.length + 1,
+                        with: newMessage.to,
+                        lastMessage: newMessage.content
+                    });
+                }
+                localStorage.setItem('conversations', JSON.stringify(conversations));
+
+                renderMessages();
+                showMessageDetail(newMessage.id);
+                messageInput.value = '';
+                messageImportance.value = 'normal';
+            }
+        });
+
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (taskInput.value.trim() !== '') {
+                const newTask = {
+                    content: taskInput.value.trim(),
+                    priority: taskPriority.value,
+                    assignee: taskAssignee.value,
+                    completed: false
+                };
+                tasks.push(newTask);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks();
+                taskInput.value = '';
+                taskAssignee.value = '';
+            }
+        });
+
+        userSearchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredMembers = teamMembers.filter(member =>
+                member.name.toLowerCase().includes(searchTerm) ||
+                member.role.toLowerCase().includes(searchTerm)
+            );
+            teamMembersContainer.innerHTML = filteredMembers.map(member => `
+                <div class="team-member" onclick="startChat(${member.id})">
+                    <div class="avatar">${member.name[0]}</div>
+                    <div class="team-member-info">
+                        <div>${member.name}</div>
+                        <div style="font-size: 0.8rem; color: var(--muted-foreground);">${member.role}</div>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        settingsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            settings.receiveMessages = document.getElementById('receiveMessages').checked;
+            settings.emailNotifications = document.getElementById('emailNotifications').checked;
+            localStorage.setItem('settings', JSON.stringify(settings));
+            closeModal('settingsModal');
+        });
+
+        profileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            currentUser.name = document.getElementById('profileName').value;
+            currentUser.email = document.getElementById('profileEmail').value;
+            currentUser.bio = document.getElementById('profileBio').value;
+            const avatarFile = document.getElementById('profileAvatar').files[0];
+            if (avatarFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUser.avatar = e.target.result;
+                    updateUserProfile();
+                };
+                reader.readAsDataURL(avatarFile);
+            } else {
+                updateUserProfile();
+            }
+            closeModal('profileModal');
+        });
+
+        createTeamForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newTeam = {
+                id: teams.length + 1,
+                name: document.getElementById('teamName').value,
+                description: document.getElementById('teamDescription').value,
+                private: document.getElementById('teamPrivate').checked,
+                members: [currentUser.id]
+            };
+            teams.push(newTeam);
+            localStorage.setItem('teams', JSON.stringify(teams));
+            renderTeams();
+            closeModal('createTeamModal');
+        });
+
+        themeSwitch.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            themeSwitch.textContent = document.body.classList.contains('dark-theme') ? '☀️' : '🌓';
+        });
+
+        fileUpload.addEventListener('change', (e) => {
+            const newFiles = Array.from(e.target.files);
+            files = [...files, ...newFiles];
+            localStorage.setItem('files', JSON.stringify(files));
+            renderFiles();
+        });
+
+        // Function to update user profile
+        function updateUserProfile() {
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            renderTeamMembers();
+            updateUserInfo();
+        }
+
+        // Function to update user info in the header
+        function updateUserInfo() {
+            userAvatar.innerHTML = currentUser.avatar ? `<img src="${currentUser.avatar}" alt="${currentUser.name}">` : currentUser.name[0];
+            userName.textContent = currentUser.name;
+            userEmail.textContent = currentUser.email;
+        }
+
+        // Function to fetch user data from user-management.html
+        function fetchUserData() {
+            fetch('user-management.html')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const avatarImg = doc.querySelector('#userAvatar img');
+                    const nameSpan = doc.querySelector('#userName');
+                    const emailSpan = doc.querySelector('#userEmail');
+
+                    if (avatarImg) {
+                        currentUser.avatar = avatarImg.src;
+                    }
+                    if (nameSpan) {
+                        currentUser.name = nameSpan.textContent;
+                    }
+                    if (emailSpan) {
+                        currentUser.email = emailSpan.textContent;
+                    }
+
+                    updateUserInfo();
+                })
+                .catch(error => console.error('Error fetching user data:', error));
+        }
+
+        // Initial render
+        renderTeamMembers();
+        renderMessages();
+        renderTasks();
+        renderCalendar();
+        renderTeams();
+        renderNotifications();
+        renderFiles();
+        updateUserInfo();
+        fetchUserData();
+
+        // Populate settings form
+        document.getElementById('receiveMessages').checked = settings.receiveMessages;
+        document.getElementById('emailNotifications').checked = settings.emailNotifications;
+
+        // Populate profile form
+        document.getElementById('profileName').value = currentUser.name;
+        document.getElementById('profileEmail').value = currentUser.email || '';
+        document.getElementById('profileBio').value = currentUser.bio || '';
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+
+        // Show inbox by default
+        showTab('inbox');
+    </script>
+</body>
+</html>

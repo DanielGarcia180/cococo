@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exportación de Datos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/data-export.css">
+    <!-- Incluir SheetJS para exportación a Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/data-export">Exportación de Datos</a></li>
+            <li><a href="/data-export/csv">Exportar CSV</a></li>
+            <li><a href="/data-export/excel">Exportar Excel</a></li>
+            <li><a href="/data-export/json">Exportar JSON</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Exportación de Datos</h1>
+        
+        <!-- Filtros Avanzados -->
+        <div class="filters-section">
+            <h2>Filtros</h2>
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="date-range">Rango de Fechas:</label>
+                    <input type="date" id="date-from">
+                    <input type="date" id="date-to">
+                </div>
+                <div class="filter-group">
+                    <label for="value-range">Rango de Valores:</label>
+                    <input type="number" id="value-min" placeholder="Mínimo">
+                    <input type="number" id="value-max" placeholder="Máximo">
+                </div>
+                <div class="filter-group">
+                    <label for="category">Categoría:</label>
+                    <select id="category">
+                        <option value="">Todas</option>
+                        <option value="ventas">Ventas</option>
+                        <option value="inventario">Inventario</option>
+                        <option value="clientes">Clientes</option>
+                    </select>
+                </div>
+                <button id="apply-filters" class="btn-primary">Aplicar Filtros</button>
+            </div>
+        </div>
+
+        <!-- Vista Previa de Datos -->
+        <div class="data-preview">
+            <h2>Vista Previa</h2>
+            <table id="preview-table">
+                <thead>
+                    <!-- Las columnas se generarán dinámicamente -->
+                </thead>
+                <tbody>
+                    <!-- Los datos se cargarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botones de Exportación -->
+        <div class="export-controls">
+            <button id="export-csv" class="btn-primary">Exportar a CSV</button>
+            <button id="export-excel" class="btn-secondary">Exportar a Excel</button>
+            <button id="export-json" class="btn-secondary">Exportar a JSON</button>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/data-export.js"></script>
+</body>
+</html>
+

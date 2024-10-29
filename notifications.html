@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones del Sistema</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/notifications.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/notifications">Notificaciones del Sistema</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Notificaciones del Sistema</h1>
+        
+        <!-- Botones y acciones -->
+        <button id="mark-all-read" class="btn-primary">Marcar Todas como Leídas</button>
+        <select id="filter-notifications">
+            <option value="all">Todas</option>
+            <option value="errors">Errores</option>
+            <option value="alerts">Alertas</option>
+            <option value="reports">Informes</option>
+        </select>
+        
+        <!-- Lista de Notificaciones -->
+        <div id="notification-list">
+            <!-- Las notificaciones se cargarán dinámicamente aquí -->
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/notifications.js"></script>
+</body>
+</html>
+

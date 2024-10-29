@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Logs</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/log-management.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/logs">Gestión de Logs</a></li>
+            <li><a href="/logs/errors">Logs de Error</a></li>
+            <li><a href="/logs/warnings">Logs de Advertencia</a></li>
+            <li><a href="/logs/activity">Logs de Actividad</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Gestión de Logs</h1>
+            <div class="header-actions">
+                <button id="export-logs" class="btn-secondary">
+                    <i class="fas fa-download"></i> Exportar
+                </button>
+                <button id="clear-logs" class="btn-danger">
+                    <i class="fas fa-trash"></i> Limpiar Logs
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <label for="log-type">Tipo de Log:</label>
+                <select id="log-type" multiple>
+                    <option value="error">Error</option>
+                    <option value="warning">Advertencia</option>
+                    <option value="info">Información</option>
+                    <option value="debug">Debug</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="date-range">Rango de Fechas:</label>
+                <div class="date-inputs">
+                    <input type="datetime-local" id="start-date">
+                    <span>hasta</span>
+                    <input type="datetime-local" id="end-date">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label for="severity">Severidad:</label>
+                <select id="severity" multiple>
+                    <option value="high">Alta</option>
+                    <option value="medium">Media</option>
+                    <option value="low">Baja</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="user">Usuario:</label>
+                <input type="text" id="user" placeholder="Filtrar por usuario">
+            </div>
+            <button id="apply-filters" class="btn-primary">
+                <i class="fas fa-filter"></i> Aplicar Filtros
+            </button>
+        </div>
+
+        <!-- Vista de Logs -->
+        <div class="logs-view">
+            <div class="view-controls">
+                <div class="view-selector">
+                    <button class="btn-view active" data-view="table">
+                        <i class="fas fa-table"></i> Tabla
+                    </button>
+                    <button class="btn-view" data-view="json">
+                        <i class="fas fa-code"></i> JSON
+                    </button>
+                    <button class="btn-view" data-view="raw">
+                        <i class="fas fa-align-left"></i> Raw
+                    </button>
+                </div>
+                <div class="pagination">
+                    <button id="prev-page" class="btn-secondary">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span id="page-info">Página 1 de 1</span>
+                    <button id="next-page" class="btn-secondary">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista de Tabla -->
+            <div id="table-view" class="view-content active">
+                <table id="logs-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="select-all">
+                            </th>
+                            <th>Timestamp</th>
+                            <th>Nivel</th>
+                            <th>Tipo</th>
+                            <th>Usuario</th>
+                            <th>Mensaje</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-body">
+                        <!-- Los logs se cargarán dinámicamente aquí -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Vista JSON -->
+            <div id="json-view" class="view-content">
+                <pre id="json-content"></pre>
+            </div>
+
+            <!-- Vista Raw -->
+            <div id="raw-view" class="view-content">
+                <pre id="raw-content"></pre>
+            </div>
+        </div>
+
+        <!-- Modal de Detalles -->
+        <div id="details-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Detalles del Log</h2>
+                    <button class="close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="log-details">
+                    <div id="log-info"></div>
+                    <div id="stack-trace"></div>
+                    <div id="context-data"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="copy-details" class="btn-secondary">
+                        <i class="fas fa-copy"></i> Copiar
+                    </button>
+                    <button id="download-details" class="btn-secondary">
+                        <i class="fas fa-download"></i> Descargar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Exportación -->
+        <div id="export-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Exportar Logs</h2>
+                    <button class="close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="export-options">
+                    <div class="form-group">
+                        <label>Formato:</label>
+                        <select id="export-format">
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                            <option value="pdf">PDF</option>
+                            <option value="excel">Excel</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="include-details">
+                            Incluir detalles completos
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="start-export" class="btn-primary">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Confirmación -->
+        <div id="confirm-modal" class="modal">
+            <div class="modal-content">
+                <h2>Confirmar Acción</h2>
+                <p id="confirm-message"></p>
+                <div class="modal-actions">
+                    <button id="confirm-action" class="btn-danger">Confirmar</button>
+                    <button id="cancel-action" class="btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/log-management.js"></script>
+</body>
+</html>

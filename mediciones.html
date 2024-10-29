@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Mediciones</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5a623;
+            --background-color: #f0f4f8;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --text-light: #666666;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-title {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .card-value {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard de Mediciones</h1>
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-icon">👁️</div>
+                <div class="card-title">Visitas a Análisis</div>
+                <div class="card-value" id="visitas">0</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <div class="card-title">Informes Generados</div>
+                <div class="card-value" id="informes">0</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">👥</div>
+                <div class="card-title">Usuarios Activos</div>
+                <div class="card-value" id="usuarios">0</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">💾</div>
+                <div class="card-title">Datos Procesados (MB)</div>
+                <div class="card-value" id="datos">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para obtener parámetros de la URL
+        function getQueryParams() {
+            let params = {};
+            let queryString = window.location.search.substring(1);
+            let paramArray = queryString.split('&');
+            for (let i = 0; i < paramArray.length; i++) {
+                let pair = paramArray[i].split('=');
+                params[pair[0]] = decodeURIComponent(pair[1]);
+            }
+            return params;
+        }
+
+        // Mostrar los datos en la página
+        window.onload = function() {
+            let params = getQueryParams();
+            document.getElementById('visitas').textContent = params.visitas || 0;
+            document.getElementById('informes').textContent = params.informes || 0;
+            document.getElementById('usuarios').textContent = params.usuarios || 0;
+            document.getElementById('datos').textContent = params.datos || 0;
+        };
+    </script>
+</body>
+</html>

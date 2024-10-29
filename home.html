@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pro Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        :root {
+            --primary-color: #007aff;
+            --secondary-color: #5856d6;
+            --background-color: #f2f2f7;
+            --card-background: #ffffff;
+            --text-color: #000000;
+            --border-color: #e5e5ea;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        .dark-mode {
+            --primary-color: #0a84ff;
+            --secondary-color: #5e5ce6;
+            --background-color: #1c1c1e;
+            --card-background: #2c2c2e;
+            --text-color: #ffffff;
+            --border-color: #38383a;
+            --success-color: #30d158;
+            --warning-color: #ffd60a;
+            --danger-color: #ff453a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar {
+            background-color: var(--card-background);
+            border-right: 1px solid var(--border-color);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .input {
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning-color);
+            color: black;
+        }
+
+        .badge-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            color: var(--text-color);
+            transition: background-color 0.3s;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .menu-item svg {
+            margin-right: 0.5rem;
+        }
+
+        .widget {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: var(--border-color);
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.5s ease-in-out;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 8px;
+            background-color: var(--danger-color);
+            border-radius: 50%;
+        }
+
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar w-64 h-full fixed left-0 top-0 overflow-y-auto transition-transform duration-300 ease-in-out z-20">
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+            <h2 class="text-xl font-bold">Data Pro</h2>
+            <button id="toggleSidebar" class="text-gray-500 hover:text-gray-600 lg:hidden">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        <nav class="mt-6">
+            <a href="dashboard.html" class="menu-item active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                Inicio
+            </a>
+            <a href="data-visualization.html" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Análisis
+            </a>
+            <a href="apps.html" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Apps
+            </a>            
+            <a href="data-ingestion.html" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                Datos
+            </a>
+            <a href="settings.html" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Configuración
+            </a>
+            <a href="#" id="helpButton" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Ayuda
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 ml-64 flex flex-col h-screen">
+        <!-- Top Bar -->
+        <header class="bg-white shadow-md dark:bg-gray-800">
+            <div class="flex items-center justify-between px-6 py-4">
+                <button id="sidebarToggle" class="text-gray-500 hover:text-gray-600 lg:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div class="flex-1 ml-4">
+                    <form action="busqueda.html" method="GET">
+                        <div class="relative">
+                            <input type="search" name="q" placeholder="Buscar en la aplicación..." class="w-full max-w-xs px-4  py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <svg class="w-5 h-5 text-gray-500 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7  0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </form>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="notificationsButton" class="text-gray-500 hover:text-gray-600 relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">3</span>
+                    </button>
+                    <a href="mensajes.html" class="text-gray-500 hover:text-gray-600 relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">2</span>
+                    </a>
+                    <div class="relative">
+                        <button id="userMenuButton" class="flex items-center text-gray-700 hover:text-gray-900">
+                            <img id="userProfileImage" class="w-8 h-8 rounded-full mr-2" src="" alt="User avatar">
+                            <span id="userName"></span>
+                        </button>
+                        <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
+                            <a href="user-management.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Perfil</a>
+                            <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
+                            <a href="index.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cerrar sesión</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <h2 class="text-2xl font-semibold mb-6">Dashboard</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Acceso Rápido -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Acceso Rápido</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <a href="document-generation.html" class="btn text-center flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Documentos
+                        </a>
+                        <a href="task-management.html" class="btn text-center flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                            Tareas
+                        </a>
+                        <a href="mensajes.html" class="btn text-center flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                            </svg>
+                            Chat
+                        </a>
+                        <a href="projects.html" class="btn text-center flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            Proyectos
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Resumen de Actividad -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Resumen de Actividad</h3>
+                    <p id="totalHours">Cargando horas totales...</p>
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tareas Pendientes -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Tareas Pendientes</h3>
+                    <ul id="taskList" class="space-y-2">
+                        <li class="flex justify-between items-center">
+                            <span>Completar informe mensual</span>
+                            <span class="badge badge-danger">Alta</span>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span>Revisar datos de ventas</span>
+                            <span class="badge badge-warning">Media</span>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span>Actualizar dashboard</span>
+                            <span class="badge badge-success">Baja</span>
+                        </li>
+                    </ul>
+                    <button id="addTaskButton" class="btn mt-4 w-full flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Añadir Tarea
+                    </button>
+                </div>
+
+                <!-- Rendimiento del Equipo -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Rendimiento del Equipo</h3>
+                    <div class="chart-container">
+                        <canvas id="teamPerformanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Distribución de Presupuesto -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Distribución de Presupuesto</h3>
+                    <div class="chart-container">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recursos Recientes -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Recursos Recientes</h3>
+                    <ul id="recentResources" class="space-y-2">
+                        <!-- Recent resources will be dynamically populated here -->
+                    </ul>
+                </div>
+
+                <!-- Progreso del Proyecto -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Progreso del Proyecto</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>Desarrollo Frontend</span>
+                                <span>70%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 70%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>Desarrollo Backend</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>Diseño UI/UX</span>
+                                <span>60%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 60%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendario de Eventos -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Calendario de Eventos</h3>
+                    <div id="eventCalendar" class="space-y-2">
+                        <!-- Events will be dynamically populated here -->
+                    </div>
+                    <a href="calendario.html" class="btn mt-4 w-full">Ver Calendario Completo</a>
+                </div>
+
+                <!-- Métricas Clave -->
+                <div class="card p-6 widget">
+                    <h3 class="text-lg font-semibold mb-4">Métricas Clave</h3>
+                    <div id="keyMetrics" class="grid grid-cols-2 gap-4">
+                        <!-- Key metrics will be dynamically populated here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notificationsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center modal">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl max-w-md w-full modal-content">
+            <h3 class="text-xl font-semibold mb-4">Notificaciones</h3>
+            <ul class="space-y-4">
+                <li>
+                    <a href="mensajes.html" class="block hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded">
+                        <p class="font-semibold">Nuevo mensaje de Juan Pérez</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Hace 5 minutos</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="tareas.html" class="block hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded">
+                        <p class="font-semibold">Tarea completada: Revisión de informe</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Hace 1 hora</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="proyectos.html" class="block hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded">
+                        <p class="font-semibold">Nuevo proyecto asignado: Análisis de datos Q2</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Hace 3 horas</p>
+                    </a>
+                </li>
+            </ul>
+            <button id="closeNotificationsModal" class="mt-6 btn w-full">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center modal">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl max-w-2xl w-full modal-content">
+            <h3 class="text-xl font-semibold mb-4">Ayuda y Soporte</h3>
+            <div class="space-y-4">
+                <div>
+                    <h4 class="font-semibold mb-2">Guías Rápidas</h4>
+                    <ul class="list-disc list-inside">
+                        <li><a href="#" class="text-blue-500 hover:underline">Cómo crear un nuevo proyecto</a></li>
+                        <li><a href="#" class="text-blue-500 hover:underline">Navegación por el dashboard</a></li>
+                        <li><a href="#" class="text-blue-500 hover:underline">Gestión de tareas y asignaciones</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2">Preguntas Frecuentes</h4>
+                    <ul class="list-disc list-inside">
+                        <li><a href="#" class="text-blue-500 hover:underline">¿Cómo puedo cambiar mi contraseña?</a></li>
+                        <li><a href="#" class="text-blue-500 hover:underline">¿Cómo invito a nuevos miembros al equipo?</a></li>
+                        <li><a href="#" class="text-blue-500 hover:underline">¿Dónde puedo ver los informes mensuales?</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2">Contacto de Soporte</h4>
+                    <p>Si no encuentras la respuesta que buscas, no dudes en contactar a nuestro equipo de soporte:</p>
+                    <p class="mt-2">
+                        <strong>Email:</strong> <a href="mailto:soporte@datapro.com" class="text-blue-500 hover:underline">soporte@datapro.com</a><br>
+                        <strong>Teléfono:</strong> +1 (555) 123-4567
+                    </p>
+                </div>
+            </div>
+            <button id="closeHelpModal" class="mt-6 btn w-full">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const body = document.body;
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userMenu = document.getElementById('userMenu');
+            const notificationsButton = document.getElementById('notificationsButton');
+            const notificationsModal = document.getElementById('notificationsModal');
+            const closeNotificationsModal = document.getElementById('closeNotificationsModal');
+            const helpButton = document.getElementById('helpButton');
+            const helpModal = document.getElementById('helpModal');
+            const closeHelpModal = document.getElementById('closeHelpModal');
+            const addTaskButton = document.getElementById('addTaskButton');
+
+            function toggleSidebarVisibility() {
+                sidebar.classList.toggle('-translate-x-full');
+            }
+
+            function toggleUserMenu() {
+                userMenu.classList.toggle('hidden');
+            }
+
+            function showModal(modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function hideModal(modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            sidebarToggle.addEventListener('click', toggleSidebarVisibility);
+            toggleSidebar.addEventListener('click', toggleSidebarVisibility);
+            userMenuButton.addEventListener('click', toggleUserMenu);
+
+            notificationsButton.addEventListener('click', () => showModal(notificationsModal));
+            closeNotificationsModal.addEventListener('click', () => hideModal(notificationsModal));
+
+            helpButton.addEventListener('click', () => showModal(helpModal));
+            closeHelpModal.addEventListener('click', () => hideModal(helpModal));
+
+            document.addEventListener('click', (event) => {
+                if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.add('hidden');
+                }
+                if (event.target === notificationsModal) {
+                    hideModal(notificationsModal);
+                }
+                if (event.target === helpModal) {
+                    hideModal(helpModal);
+                }
+            });
+
+            // Initialize charts
+            const ctx1 = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Horas de actividad',
+                        data: [5, 7, 6, 8, 9, 4, 3],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            const ctx2 = document.getElementById('teamPerformanceChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Equipo A', 'Equipo B', 'Equipo C', 'Equipo D'],
+                    datasets: [{
+                        label: 'Rendimiento',
+                        data: [85, 72, 90, 78],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            const ctx3 = document.getElementById('budgetChart').getContext('2d');
+            new Chart(ctx3, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Desarrollo', 'Marketing', 'Operaciones', 'Recursos Humanos'],
+                    datasets: [{
+                        data: [30, 25, 30, 15],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Socket.io for real-time updates (simulated)
+            const socket = io();
+
+            socket.on('newNotification', (data) => {
+                const notificationCount = document.querySelector('#notificationsButton .absolute');
+                notificationCount.textContent = parseInt(notificationCount.textContent) + 1;
+
+                const notificationsList = document.querySelector('#notificationsModal ul');
+                const newNotification = document.createElement('li');
+                newNotification.innerHTML = `
+                    <a href="${data.link}" class="block hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded">
+                        <p class="font-semibold">${data.title}</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${data.time}</p>
+                    </a>
+                `;
+                notificationsList.prepend(newNotification);
+            });
+
+            socket.on('taskUpdate', (data) => {
+                const taskList = document.getElementById('taskList');
+                const taskItem = document.createElement('li');
+                taskItem.className = 'flex justify-between items-center';
+                taskItem.innerHTML = `
+                    <span>${data.taskName}</span>
+                    <span class="badge badge-${data.priority.toLowerCase()}">${data.priority}</span>
+                `;
+                taskList.appendChild(taskItem);
+            });
+
+            addTaskButton.addEventListener('click', () => {
+                const taskName = prompt('Ingrese el nombre de la tarea:');
+                if (taskName) {
+                    const priority = prompt('Ingrese la prioridad (Alta, Media, Baja):');
+                    if (priority) {
+                        const newTask = { taskName, priority };
+                        socket.emit('newTask', newTask);
+                    }
+                }
+            });
+
+            // New functions to fetch and update data
+            async function fetchUserProfile() {
+                const response = await fetch('user-management.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const userName = doc.querySelector('#userName').textContent;
+                const userEmail = doc.querySelector('#userEmail').textContent;
+                const userImage = doc.querySelector('#userImage').src;
+
+                document.getElementById('userName').textContent = userName;
+                document.getElementById('userProfileImage').src = userImage;
+                
+                const userMenuItems = document.querySelectorAll('#userMenu a');
+                userMenuItems[0].textContent = userName;
+                userMenuItems[1].textContent = userEmail;
+            }
+
+            async function fetchTotalHours() {
+                const pages = ['arima.html', 'history.html', 'montecarlo.html', 'settings.html'];
+                let totalHours = 0;
+
+                for (const page of pages) {
+                    const response = await fetch(page);
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    const hoursElement = doc.querySelector('.hours-spent');
+                    if (hoursElement) {
+                        totalHours += parseFloat(hoursElement.textContent);
+                    }
+                }
+
+                document.getElementById('totalHours').textContent = `Total de horas: ${totalHours.toFixed(2)}`;
+            }
+
+            async function fetchRecentResources() {
+                const response = await fetch('history.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const recentItems = doc.querySelectorAll('.history-item');
+                const recentResourcesList = document.getElementById('recentResources');
+                recentResourcesList.innerHTML = '';
+
+                for (let i = 0; i < 5 && i < recentItems.length; i++) {
+                    const item = recentItems[i];
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center';
+                    li.innerHTML = `
+                        <span class="flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            ${item.querySelector('.item-name').textContent}
+                        </span>
+                        <a href="${item.querySelector('.item-link').href}" class="text-blue-500 hover:text-blue-600">Ver</a>
+                    `;
+                    recentResourcesList.appendChild(li);
+                }
+            }
+
+            async function fetchCalendarEvents() {
+                const response = await fetch('calendario.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const todayEvents = doc.querySelectorAll('.today-event');
+                const eventCalendar = document.getElementById('eventCalendar');
+                eventCalendar.innerHTML = '';
+
+                todayEvents.forEach(event => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center';
+                    div.innerHTML = `
+                        <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                        <span>${event.textContent}</span>
+                    `;
+                    eventCalendar.appendChild(div);
+                });
+            }
+
+            async function fetchKeyMetrics() {
+                const response = await fetch('satisfaction.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const metrics = doc.querySelectorAll('.metric');
+                const keyMetricsDiv = document.getElementById('keyMetrics');
+                keyMetricsDiv.innerHTML = '';
+
+                metrics.forEach(metric => {
+                    const div = document.createElement('div');
+                    div.className = 'text-center';
+                    div.innerHTML = `
+                        <div class="text-3xl font-bold text-blue-500">${metric.querySelector('.metric-value').textContent}</div>
+                        <div class="text-sm text-gray-500">${metric.querySelector('.metric-name').textContent}</div>
+                    `;
+                    keyMetricsDiv.appendChild(div);
+                });
+            }
+
+            // New function to fetch and apply theme from settings.html
+            async function fetchAndApplyTheme() {
+                const response = await fetch('settings.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const themeSelect = doc.querySelector('#themeSelect');
+                if (themeSelect) {
+                    const selectedTheme = themeSelect.value;
+                    if (selectedTheme === 'dark') {
+                        body.classList.add('dark-mode');
+                    } else {
+                        body.classList.remove('dark-mode');
+                    }
+                }
+            }
+
+            // Call the new functions to populate the dashboard
+            fetchUserProfile();
+            fetchTotalHours();
+            fetchRecentResources();
+            fetchCalendarEvents();
+            fetchKeyMetrics();
+            fetchAndApplyTheme();
+        });
+    </script>
+</body>
+</html>

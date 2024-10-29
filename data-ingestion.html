@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingesta de Datos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/data-ingestion.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SheetJS para procesar Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/data-ingestion">Ingesta de Datos</a></li>
+            <li><a href="/data-validation">Validación</a></li>
+            <li><a href="/data-processing">Procesamiento</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Ingesta de Datos</h1>
+            <div class="header-actions">
+                <button id="show-history" class="btn-secondary">
+                    <i class="fas fa-history"></i> Historial
+                </button>
+                <button id="show-settings" class="btn-secondary">
+                    <i class="fas fa-cog"></i> Configuración
+                </button>
+            </div>
+        </div>
+
+        <!-- Área de carga de archivos -->
+        <div class="upload-section">
+            <div class="upload-area" id="drop-zone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Arrastra y suelta archivos aquí o</p>
+                <label for="file-input" class="btn-primary">Seleccionar Archivos</label>
+                <input type="file" id="file-input" multiple accept=".csv,.xlsx,.json,.xml">
+                <p class="supported-formats">Formatos soportados: CSV, Excel, JSON, XML</p>
+            </div>
+        </div>
+
+        <!-- Lista de archivos -->
+        <div class="files-section">
+            <h2>Archivos Cargados</h2>
+            <div id="file-list" class="file-list">
+                <!-- Los archivos se cargarán dinámicamente aquí -->
+            </div>
+        </div>
+
+        <!-- Vista previa de datos -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <h2>Vista Previa de Datos</h2>
+                <div class="preview-controls">
+                    <select id="preview-file">
+                        <option value="">Seleccionar archivo</option>
+                    </select>
+                    <button id="validate-data" class="btn-primary">
+                        <i class="fas fa-check-circle"></i> Validar Datos
+                    </button>
+                    <button id="process-data" class="btn-primary">
+                        <i class="fas fa-play"></i> Procesar Datos
+                    </button>
+                </div>
+            </div>
+            <div class="preview-content">
+                <div id="preview-table"></div>
+            </div>
+        </div>
+
+        <!-- Modal de Configuración -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Configuración de Ingesta</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label for="delimiter">Delimitador CSV:</label>
+                        <input type="text" id="delimiter" value="," maxlength="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="encoding">Codificación:</label>
+                        <select id="encoding">
+                            <option value="UTF-8">UTF-8</option>
+                            <option value="ISO-8859-1">ISO-8859-1</option>
+                            <option value="ASCII">ASCII</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date-format">Formato de Fecha:</label>
+                        <select id="date-format">
+                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="header-row">
+                            Primera fila como encabezado
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="auto-detect">
+                            Detectar tipos de datos automáticamente
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar Configuración</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Validación -->
+        <div id="validation-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Resultados de Validación</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="validation-results">
+                    <div class="validation-summary">
+                        <div class="validation-stat">
+                            <span class="stat-label">Total de Registros:</span>
+                            <span id="total-records" class="stat-value">0</span>
+                        </div>
+                        <div class="validation-stat">
+                            <span class="stat-label">Registros Válidos:</span>
+                            <span id="valid-records" class="stat-value">0</span>
+                        </div>
+                        <div class="validation-stat">
+                            <span class="stat-label">Errores Encontrados:</span>
+                            <span id="error-records" class="stat-value">0</span>
+                        </div>
+                    </div>
+                    <div id="validation-details"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="export-errors" class="btn-secondary">
+                        <i class="fas fa-download"></i> Exportar Errores
+                    </button>
+                    <button id="proceed-anyway" class="btn-warning">
+                        Continuar de Todos Modos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Progreso -->
+        <div id="progress-modal" class="modal">
+            <div class="modal-content">
+                <h3>Procesando Datos</h3>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+                <p id="progress-text">Procesando...</p>
+                <button id="cancel-process" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/data-ingestion.js"></script>
+</body>
+</html>

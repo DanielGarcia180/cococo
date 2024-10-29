@@ -1,0 +1,115 @@
+<!-- DATA-ANALYZER-APP/public/components/batch-processing.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesamiento por Lotes</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/batch-processing.css">
+    <!-- Incluir Chart.js para visualizaciones -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/carga-datos">Carga de Datos</a></li>
+            <li class="active"><a href="/batch-processing">Procesamiento por Lotes</a></li>
+            <li><a href="/resultados">Resultados</a></li>
+            <li><a href="/configuracion">Configuración</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Procesamiento por Lotes</h1>
+
+        <!-- Sección de Carga de Datos -->
+        <div class="section data-upload">
+            <h2>Cargar Datos para Procesar</h2>
+            <div class="file-upload-container">
+                <input type="file" id="batch-file" accept=".csv,.xlsx,.json,.xml" multiple>
+                <button id="load-batch-data" class="btn-primary">Cargar Datos</button>
+            </div>
+            <div id="upload-progress" class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            <div id="file-list" class="file-list"></div>
+        </div>
+
+        <!-- Sección de Configuración de Procesamiento -->
+        <div class="section batch-config">
+            <h2>Configuración de Procesamiento</h2>
+            <div class="config-options">
+                <div class="form-group">
+                    <label for="batch-size">Tamaño del Lote:</label>
+                    <input type="number" id="batch-size" min="100" max="10000" value="1000">
+                </div>
+                <div class="form-group">
+                    <label for="process-type">Tipo de Procesamiento:</label>
+                    <select id="process-type">
+                        <option value="analysis">Análisis Estadístico</option>
+                        <option value="transform">Transformación de Datos</option>
+                        <option value="clean">Limpieza de Datos</option>
+                    </select>
+                </div>
+            </div>
+            <button id="process-batch" class="btn-primary">Procesar Lote</button>
+        </div>
+
+        <!-- Sección de Resultados -->
+        <div class="section results">
+            <h2>Resultados del Procesamiento</h2>
+            <div class="view-controls">
+                <button id="view-table" class="btn-secondary">Ver Tabla</button>
+                <button id="view-chart" class="btn-secondary">Ver Gráfico</button>
+                <button id="export-results" class="btn-secondary">Exportar Resultados</button>
+            </div>
+            <div id="results-container">
+                <div id="table-view" class="result-view">
+                    <table id="results-table">
+                        <thead>
+                            <!-- Las columnas se generarán dinámicamente -->
+                        </thead>
+                        <tbody>
+                            <!-- Los resultados se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="chart-view" class="result-view">
+                    <canvas id="results-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Progreso -->
+        <div id="progress-modal" class="modal">
+            <div class="modal-content">
+                <h3>Procesando Datos</h3>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <p id="progress-text">Procesando lote 1 de X...</p>
+                </div>
+                <button id="cancel-processing" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Modal de Error -->
+        <div id="error-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Error</h3>
+                <p id="error-message"></p>
+                <button class="btn-primary modal-close">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/batch-processing.js"></script>
+</body>
+</html>

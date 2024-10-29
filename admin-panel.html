@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel - Data Pro Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="login-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-md w-96">
+            <h2 class="text-2xl font-bold mb-4">Admin Login</h2>
+            <form id="admin-login-form">
+                <div class="mb-4">
+                    <label for="admin-email" class="block mb-2">Email</label>
+                    <input type="email" id="admin-email" class="w-full p-2 border rounded" required>
+                </div>
+                <div class="mb-4">
+                    <label for="admin-password" class="block mb-2">Password</label>
+                    <input type="password" id="admin-password" class="w-full p-2 border rounded" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="hidden flex h-screen">
+        <!-- Sidebar -->
+        <aside id="desktop-sidebar" class="hidden md:flex flex-col w-64 bg-gray-800 text-white">
+            <div class="p-4">
+                <h2 class="text-2xl font-semibold">Data Pro</h2>
+            </div>
+            <nav class="flex-1">
+                <a href="home.html" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-home mr-3"></i>
+                    Home
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-user-shield mr-3"></i>
+                    Admin Panel
+                </a>
+                <a href="settings.html" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-cog mr-3"></i>
+                    Settings
+                </a>
+                <a href="history.html" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-history mr-3"></i>
+                    History
+                </a>
+            </nav>
+            <div class="p-4">
+                <a href="#" id="admin-logout" class="flex items-center text-gray-300 hover:text-white">
+                    <i class="fas fa-sign-out-alt mr-3"></i>
+                    Log out
+                </a>
+            </div>
+        </aside>
+
+        <!-- Mobile sidebar -->
+        <div id="mobile-sidebar" class="fixed inset-0 bg-gray-800 text-white z-50 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+            <div class="flex justify-end p-4">
+                <button id="close-sidebar" class="text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <nav class="p-4">
+                <a href="home.html" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-home mr-3"></i>
+                    Home
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-user-shield mr-3"></i>
+                    Admin Panel
+                </a>
+                <a href="settings.html" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-cog mr-3"></i>
+                    Settings
+                </a>
+                <a href="history.html" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-history mr-3"></i>
+                    History
+                </a>
+            </nav>
+            <div class="p-4">
+                <a href="#" id="admin-logout-mobile" class="flex items-center text-gray-300 hover:text-white">
+                    <i class="fas fa-sign-out-alt mr-3"></i>
+                    Log out
+                </a>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                <button id="open-sidebar" class="text-gray-800 md:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="text-2xl font-bold">Admin Control Panel</h1>
+                <div class="flex items-center">
+                    <span class="mr-2">Admin User</span>
+                    <img src="https://via.placeholder.com/40" alt="Admin Avatar" class="w-10 h-10 rounded-full">
+                </div>
+            </header>
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold mb-2">Total Visitors</h3>
+                        <p class="text-3xl font-bold" id="totalVisitors">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold mb-2">Active Sessions</h3>
+                        <p class="text-3xl font-bold" id="activeSessions">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold mb-2">Server Load</h3>
+                        <p class="text-3xl font-bold" id="serverLoad">0%</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-md mb-8">
+                    <h3 class="text-lg font-semibold mb-4">Total Users Over Time</h3>
+                    <canvas id="userActivityChart"></canvas>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Recent User Logins</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white">
+                            <thead>
+                                <tr>
+                                    <th class="py-2 px-4 border-b">User</th>
+                                    <th class="py-2 px-4 border-b">Login Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userLoginTable">
+                                <!-- User login rows will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminLoginForm = document.getElementById('admin-login-form');
+            const loginScreen = document.getElementById('login-screen');
+            const adminPanel = document.getElementById('admin-panel');
+            const adminLogout = document.getElementById('admin-logout');
+            const adminLogoutMobile = document.getElementById('admin-logout-mobile');
+            const mobileSidebar = document.getElementById('mobile-sidebar');
+            const openSidebarBtn = document.getElementById('open-sidebar');
+            const closeSidebarBtn = document.getElementById('close-sidebar');
+
+            // Admin login
+            adminLoginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('admin-email').value;
+                const password = document.getElementById('admin-password').value;
+
+                if (email === '1234@1234' && password === '1234') {
+                    loginScreen.classList.add('hidden');
+                    adminPanel.classList.remove('hidden');
+                    loadAdminData();
+                } else {
+                    alert('Invalid credentials. Please try again.');
+                }
+            });
+
+            // Admin logout
+            adminLogout.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginScreen.classList.remove('hidden');
+                adminPanel.classList.add('hidden');
+            });
+
+            adminLogoutMobile.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginScreen.classList.remove('hidden');
+                adminPanel.classList.add('hidden');
+            });
+
+            // Mobile sidebar
+            openSidebarBtn.addEventListener('click', function() {
+                mobileSidebar.classList.remove('-translate-x-full');
+            });
+
+            closeSidebarBtn.addEventListener('click', function() {
+                mobileSidebar.classList.add('-translate-x-full');
+            });
+
+            // Close sidebar when clicking outside
+            document.addEventListener('click', function(event) {
+                const isClickInsideSidebar = mobileSidebar.contains(event.target);
+                const isClickOnOpenButton = openSidebarBtn.contains(event.target);
+
+                if (!isClickInsideSidebar && !isClickOnOpenButton && !mobileSidebar.classList.contains('-translate-x-full')) {
+                    mobileSidebar.classList.add('-translate-x-full');
+                }
+            });
+
+            // Handle active state for sidebar items
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Load and display admin data
+            function loadAdminData() {
+                // Simulate data collection from different pages
+                let adminData = {
+                    totalVisitors: parseInt(localStorage.getItem('indexVisitors') || '0'),
+                    activeSessions: new Set([
+                        ...JSON.parse(localStorage.getItem('arimaUsers') || '[]'),
+                        ...JSON.parse(localStorage.getItem('settingsUsers') || '[]'),
+                        // Add more pages as needed
+                    ]).size,
+                    serverLoad: calculateServerLoad(),
+                    userActivity: JSON.parse(localStorage.getItem('userActivity') || '[]'),
+                    recentLogins: JSON.parse(localStorage.getItem('recentLogins') || '[]')
+                };
+
+                document.getElementById('totalVisitors').textContent = adminData.totalVisitors;
+                document.getElementById('activeSessions').textContent = adminData.activeSessions;
+                document.getElementById('serverLoad').textContent = adminData.serverLoad + '%';
+
+                // User Activity Chart
+                const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+                new Chart(userActivityCtx, {
+                    type: 'line',
+                    data: {
+                        labels: adminData.userActivity.map(item => item.date),
+                        datasets: [{
+                            label: 'Total Users',
+                            data: adminData.userActivity.map(item => item.users),
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // Recent User Logins Table
+                const userLoginTable = document.getElementById('userLoginTable');
+                userLoginTable.innerHTML = '';
+                adminData.recentLogins.forEach(login => {
+                    const row = userLoginTable.insertRow();
+                    row.insertCell(0).textContent = login.user;
+                    row.insertCell(1).textContent = login.timestamp;
+                });
+            }
+
+            function calculateServerLoad() {
+                // Simulate server load calculation
+                const baseLoad = 20;
+                const randomFactor = Math.random() * 30;
+                const timeBasedLoad = Math.sin(Date.now() / 10000) * 10 + 10;
+                return Math.min(Math.floor(baseLoad + randomFactor + timeBasedLoad), 100);
+            }
+
+            // Simulate data updates
+            setInterval(() => {
+                if (!adminPanel.classList.contains('hidden')) {
+                    loadAdminData();
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

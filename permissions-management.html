@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Permisos</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/permissions-management.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/users">Usuarios</a></li>
+            <li><a href="/roles">Roles</a></li>
+            <li class="active"><a href="/permissions">Permisos</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Gestión de Permisos</h1>
+            <div class="header-actions">
+                <button id="create-role" class="btn-primary">
+                    <i class="fas fa-plus"></i> Crear Rol
+                </button>
+                <button id="bulk-assign" class="btn-secondary">
+                    <i class="fas fa-users-cog"></i> Asignación Masiva
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel de Roles y Permisos -->
+        <div class="permissions-panel">
+            <!-- Lista de Roles -->
+            <div class="roles-section">
+                <h2>Roles</h2>
+                <div class="roles-list" id="roles-list">
+                    <!-- Los roles se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+
+            <!-- Matriz de Permisos -->
+            <div class="permissions-matrix">
+                <h2>Permisos</h2>
+                <div class="matrix-controls">
+                    <input type="text" id="permission-search" placeholder="Buscar permisos...">
+                    <select id="module-filter">
+                        <option value="">Todos los Módulos</option>
+                        <option value="users">Usuarios</option>
+                        <option value="data">Datos</option>
+                        <option value="reports">Informes</option>
+                    </select>
+                </div>
+                <div class="matrix-container">
+                    <table id="permissions-table">
+                        <thead>
+                            <tr>
+                                <th>Permiso</th>
+                                <th>Módulo</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Los permisos se cargarán dinámicamente aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista Previa de Permisos -->
+        <div class="preview-section">
+            <h2>Vista Previa de Permisos</h2>
+            <div class="preview-content">
+                <div id="role-preview"></div>
+                <div id="permissions-tree"></div>
+            </div>
+        </div>
+
+        <!-- Modales -->
+        <!-- Modal de Crear Rol -->
+        <div id="role-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Crear Nuevo Rol</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="role-form">
+                    <div class="form-group">
+                        <label for="role-name">Nombre del Rol:</label>
+                        <input type="text" id="role-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role-description">Descripción:</label>
+                        <textarea id="role-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Permisos Base:</label>
+                        <div class="permissions-grid">
+                            <!-- Los permisos base se cargarán dinámicamente aquí -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-primary">Guardar</button>
+                        <button type="button" class="btn-secondary modal-close">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Asignación Masiva -->
+        <div id="bulk-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Asignación Masiva de Permisos</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="bulk-form">
+                    <div class="form-group">
+                        <label>Seleccionar Roles:</label>
+                        <div class="roles-select">
+                            <!-- Los roles se cargarán dinámicamente aquí -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Seleccionar Permisos:</label>
+                        <div class="permissions-select">
+                            <!-- Los permisos se cargarán dinámicamente aquí -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-primary">Aplicar</button>
+                        <button type="button" class="btn-secondary modal-close">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Confirmación -->
+        <div id="confirm-modal" class="modal">
+            <div class="modal-content">
+                <h2>Confirmar Acción</h2>
+                <p id="confirm-message"></p>
+                <div class="modal-actions">
+                    <button id="confirm-action" class="btn-danger">Confirmar</button>
+                    <button id="cancel-action" class="btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/permissions-management.js"></script>
+</body>
+</html>

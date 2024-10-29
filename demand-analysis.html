@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Demanda</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/demand-analysis.css">
+    <!-- Incluir Chart.js para funcionalidad de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/demand-analysis">Análisis de Demanda</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Análisis de Demanda</h1>
+        
+        <!-- Controles de Análisis de Demanda -->
+        <div class="demand-controls">
+            <input type="file" id="demand-data-input" accept=".csv, .xlsx">
+            <button id="load-demand-data" class="btn-primary">Cargar Datos de Demanda</button>
+            <button id="generate-forecast" class="btn-secondary">Generar Pronóstico de Demanda</button>
+        </div>
+
+        <!-- Contenedor de Gráficos -->
+        <div id="demand-chart-container">
+            <canvas id="demand-chart"></canvas>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/demand-analysis.js"></script>
+</body>
+</html>

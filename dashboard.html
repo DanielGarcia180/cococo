@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Data Analyzer Mejorado</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet para mapas -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        .navbar {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+        }
+        .main-content {
+            margin-top: 60px;
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .widget-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar y Sidebar (reutilizados) -->
+    <nav class="navbar">
+        <!-- ... contenido del navbar ... -->
+    </nav>
+    <div id="sidebar" class="sidebar">
+        <!-- ... contenido del sidebar ... -->
+    </div>
+
+    <div class="main-content">
+        <!-- Panel Superior de KPIs -->
+        <div class="kpi-panel">
+            <div class="kpi-card" data-kpi="performance">
+                <div class="kpi-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="kpi-info">
+                    <h3>Rendimiento General</h3>
+                    <p class="kpi-value">98.5%</p>
+                    <span class="kpi-trend positive">
+                        <i class="fas fa-arrow-up"></i> 2.3%
+                    </span>
+                </div>
+            </div>
+            <!-- Más KPIs similares -->
+        </div>
+
+        <!-- Panel de Widgets Personalizables -->
+        <div class="widgets-grid" id="widgets-container">
+            <!-- Widget de Actividad Reciente -->
+            <div class="widget" data-widget-id="recent-activity">
+                <div class="widget-header">
+                    <h3>Actividad Reciente</h3>
+                    <div class="widget-controls">
+                        <button class="btn-refresh"><i class="fas fa-sync-alt"></i></button>
+                        <button class="btn-maximize"><i class="fas fa-expand"></i></button>
+                        <button class="btn-settings"><i class="fas fa-cog"></i></button>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <div class="activity-timeline">
+                        <!-- Se llenara dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget de Mapa de Calor -->
+            <div class="widget" data-widget-id="heat-map">
+                <div class="widget-header">
+                    <h3>Distribución Geográfica</h3>
+                    <div class="widget-controls">
+                        <button class="btn-refresh"><i class="fas fa-sync-alt"></i></button>
+                        <button class="btn-maximize"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <div id="map-container" style="height: 300px;"></div>
+                </div>
+            </div>
+
+            <!-- Widget de Tareas Pendientes -->
+            <div class="widget" data-widget-id="tasks">
+                <div class="widget-header">
+                    <h3>Tareas Pendientes</h3>
+                    <button class="btn-add-task"><i class="fas fa-plus"></i></button>
+                </div>
+                <div class="widget-content">
+                    <div class="tasks-list">
+                        <!-- Se llenara dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget de Análisis Predictivo -->
+            <div class="widget" data-widget-id="predictive">
+                <div class="widget-header">
+                    <h3>Predicciones</h3>
+                    <div class="widget-controls">
+                        <select class="prediction-period">
+                            <option value="7">7 días</option>
+                            <option value="30">30 días</option>
+                            <option value="90">90 días</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <canvas id="prediction-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Widget de Análisis de Usuarios -->
+            <div class="widget" data-widget-id="user-analytics">
+                <div class="widget-header">
+                    <h3>Análisis de Usuarios</h3>
+                    <div class="widget-controls">
+                        <select id="activity-period">
+                            <option value="daily">Últimos 7 días</option>
+                            <option value="weekly">Últimas 4 semanas</option>
+                            <option value="monthly">Último año</option>
+                        </select>
+                        <button class="btn-refresh"><i class="fas fa-sync-alt"></i></button>
+                        <button class="btn-maximize"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <canvas id="page-visits-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Widget de Gestión de Roles -->
+            <div class="widget" data-widget-id="roles-management">
+                <div class="widget-header">
+                    <h3>Gestión de Roles</h3>
+                    <div class="widget-controls">
+                        <button class="btn-add-role"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <div class="roles-overview">
+                        <div class="roles-chart">
+                            <canvas id="roles-distribution-chart"></canvas>
+                        </div>
+                        <div class="roles-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Rol</th>
+                                        <th>Usuarios</th>
+                                        <th>Permisos</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="roles-table-body">
+                                    <!-- Se llenara dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Estado del Sistema -->
+        <div class="system-status-panel">
+            <div class="status-card">
+                <h4>Estado del Sistema</h4>
+                <div class="status-indicators">
+                    <div class="status-item">
+                        <span class="status-label">CPU</span>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Memoria</span>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    <!-- Modal de Configuración de Widget -->
+    <div id="widget-settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Configuración del Widget</h2>
+            <form id="widget-settings-form">
+                <div class="form-group">
+                    <label>Título:</label>
+                    <input type="text" id="widget-title">
+                </div>
+                <div class="form-group">
+                    <label>Actualización Automática:</label>
+                    <select id="widget-refresh-rate">
+                        <option value="0">Manual</option>
+                        <option value="30">Cada 30 segundos</option>
+                        <option value="60">Cada minuto</option>
+                        <option value="300">Cada 5 minutos</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Nueva Tarea -->
+    <div id="new-task-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Nueva Tarea</h2>
+            <form id="new-task-form">
+                <div class="form-group">
+                    <label>Título:</label>
+                    <input type="text" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Fecha límite:</label>
+                    <input type="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Asignar a:</label>
+                    <select id="task-assignee">
+                        <!-- Se llenara dinámicamente -->
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Crear Tarea</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Edición de Rol -->
+    <div id="edit-role-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Editar Rol</h2>
+            <form id="edit-role-form">
+                <div class="form-group">
+                    <label>Nombre del Rol:</label>
+                    <input type="text" id="edit-role-name" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Permisos:</label>
+                    <div class="permissions-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="perm-read"> Lectura
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="perm-write"> Escritura
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="perm-analyze"> Análisis
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="perm-admin"> Administración
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Usuarios por Rol -->
+    <div id="role-users-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Usuarios del Rol</h2>
+            <div id="role-users-list" class="users-list">
+                <!-- Se llenara dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/navbar.js"></script>
+    <script src="../js/sidebar.js"></script>
+</body>
+</html>

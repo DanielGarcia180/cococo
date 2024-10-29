@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Imágenes</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/image-analysis.css">
+    <!-- Incluir librerías para procesamiento de imágenes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.3.0/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/opencv.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li class="active"><a href="/image-analysis">Análisis de Imágenes</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Análisis de Imágenes</h1>
+        
+        <!-- Controles de Análisis de Imágenes -->
+        <div class="image-controls">
+            <input type="file" id="image-input" accept="image/*">
+            <button id="load-image" class="btn-primary">Cargar Imagen</button>
+            <button id="apply-filters" class="btn-secondary">Aplicar Filtros</button>
+        </div>
+
+        <!-- Contenedor de la Imagen -->
+        <div id="image-container">
+            <canvas id="image-canvas"></canvas>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/image-analysis.js"></script>
+</body>
+</html>
