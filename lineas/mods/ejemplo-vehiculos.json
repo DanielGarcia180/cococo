@@ -1,0 +1,10 @@
+{
+  "name": "Flota de Dublín",
+  "version": "1.0",
+  "author": "ejemplo",
+  "vehicles": [
+    { "id": "tram_luas", "name": "Luas Citadis 402", "mode": "tram", "track": "rail", "era": 2, "year": 2004, "price": 420000, "speed": 70, "capacity": 358, "accel": 1.1, "consumption": 22, "reliability": 0.95, "maintenance": 2600, "lifespan": 30, "unlock": "era_1990", "desc": "Tranvía de piso bajo de 43 m. Mucha capacidad para corredores urbanos." },
+    { "id": "bus_dublinbus", "name": "Dublin Bus Enviro400", "mode": "bus", "track": "road", "era": 2, "year": 2010, "price": 140000, "speed": 80, "capacity": 90, "accel": 1.0, "consumption": 34, "reliability": 0.91, "maintenance": 1400, "lifespan": 14, "unlock": "era_1990", "desc": "Autobús de dos pisos. Capacidad alta para una parada de carretera." },
+    { "id": "train_dart", "name": "DART 8100", "mode": "train", "track": "rail", "era": 2, "year": 1984, "price": 1100000, "speed": 100, "capacity": 500, "accel": 0.6, "consumption": 70, "reliability": 0.93, "maintenance": 7000, "lifespan": 35, "unlock": "era_1990", "desc": "Cercanías eléctrico de la bahía de Dublín." }
+  ]
+}
