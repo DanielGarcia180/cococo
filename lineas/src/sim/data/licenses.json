@@ -1,0 +1,146 @@
+[
+ {
+  "id": "L1",
+  "name": "Licencia A: primera línea",
+  "desc": "Beneficio mensual de una sola línea",
+  "metric": "bestLineMonthProfit",
+  "tiers": [
+   5000,
+   15000,
+   40000
+  ],
+  "unit": "€"
+ },
+ {
+  "id": "L2",
+  "name": "Licencia B: red de cinco",
+  "desc": "Beneficio mensual total con 5+ estaciones",
+  "metric": "monthProfit5",
+  "tiers": [
+   20000,
+   60000,
+   150000
+  ],
+  "unit": "€"
+ },
+ {
+  "id": "L3",
+  "name": "Licencia C: factor de carga",
+  "desc": "Factor de carga medio de una línea con 3+ vehículos",
+  "metric": "bestLoad3",
+  "tiers": [
+   0.5,
+   0.7,
+   0.85
+  ],
+  "unit": "%"
+ },
+ {
+  "id": "L4",
+  "name": "Licencia D: puntualidad",
+  "desc": "Puntualidad media de la red (mes)",
+  "metric": "punctuality",
+  "tiers": [
+   0.7,
+   0.85,
+   0.95
+  ],
+  "unit": "%"
+ },
+ {
+  "id": "L5",
+  "name": "Licencia E: logística",
+  "desc": "Toneladas entregadas en un mes",
+  "metric": "monthCargo",
+  "tiers": [
+   150,
+   600,
+   2000
+  ],
+  "unit": "t"
+ },
+ {
+  "id": "L6",
+  "name": "Licencia F: metrópolis",
+  "desc": "Población de la ciudad más grande",
+  "metric": "maxPop",
+  "tiers": [
+   120000,
+   250000,
+   500000
+  ],
+  "unit": "hab"
+ },
+ {
+  "id": "L7",
+  "name": "Licencia G: interés compuesto",
+  "desc": "Ganancia acumulada del fondo indexado",
+  "metric": "fundGain",
+  "tiers": [
+   50000,
+   500000,
+   5000000
+  ],
+  "unit": "€"
+ },
+ {
+  "id": "L8",
+  "name": "Licencia H: coleccionista",
+  "desc": "Modelos distintos comprados",
+  "metric": "models",
+  "tiers": [
+   8,
+   20,
+   40
+  ],
+  "unit": ""
+ },
+ {
+  "id": "L9",
+  "name": "Licencia I: fiabilidad",
+  "desc": "Meses seguidos sin averías con 5+ vehículos",
+  "metric": "noBreakdownMonths",
+  "tiers": [
+   3,
+   12,
+   36
+  ],
+  "unit": "meses"
+ },
+ {
+  "id": "L10",
+  "name": "Licencia J: imperio",
+  "desc": "Valor de compañía",
+  "metric": "value",
+  "tiers": [
+   2000000,
+   10000000,
+   50000000
+  ],
+  "unit": "€"
+ },
+ {
+  "id": "L11",
+  "name": "Licencia K: alta velocidad",
+  "desc": "Pasajeros mensuales en alta velocidad",
+  "metric": "monthHsrPax",
+  "tiers": [
+   300,
+   1500,
+   6000
+  ],
+  "unit": "pax"
+ },
+ {
+  "id": "L12",
+  "name": "Licencia L: kilómetros",
+  "desc": "Kilómetros recorridos por la flota",
+  "metric": "km",
+  "tiers": [
+   2000,
+   20000,
+   200000
+  ],
+  "unit": "km"
+ }
+]

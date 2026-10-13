@@ -1,0 +1,176 @@
+[
+ {
+  "id": "bus_motor",
+  "name": "Autobús a motor",
+  "era": 0,
+  "cost": 25000,
+  "days": 40,
+  "req": [],
+  "desc": "Desbloquea los primeros autobuses de gasolina."
+ },
+ {
+  "id": "truck",
+  "name": "Camión de reparto",
+  "era": 0,
+  "cost": 20000,
+  "days": 30,
+  "req": [],
+  "desc": "Camiones para mover carga por carretera."
+ },
+ {
+  "id": "signals",
+  "name": "Señalización mecánica",
+  "era": 0,
+  "cost": 40000,
+  "days": 60,
+  "req": [],
+  "desc": "Estaciones de nivel 2: más capacidad y paradas más rápidas."
+ },
+ {
+  "id": "workshop",
+  "name": "Taller central",
+  "era": 0,
+  "cost": 60000,
+  "days": 60,
+  "req": [],
+  "desc": "Mantenimiento un 20 % más barato y menos averías."
+ },
+ {
+  "id": "metro",
+  "name": "Ferrocarril subterráneo",
+  "era": 0,
+  "cost": 220000,
+  "days": 120,
+  "req": [
+   "signals"
+  ],
+  "desc": "Túneles de metro y las primeras unidades."
+ },
+ {
+  "id": "era_1950",
+  "name": "Era 1950: diésel y hormigón",
+  "era": 1,
+  "cost": 400000,
+  "days": 150,
+  "req": [
+   "signals"
+  ],
+  "desc": "Nueva era: diésel, autobuses articulados y trenes Talgo.",
+  "year": 1940
+ },
+ {
+  "id": "loans2",
+  "name": "Crédito corporativo",
+  "era": 1,
+  "cost": 80000,
+  "days": 40,
+  "req": [
+   "era_1950"
+  ],
+  "desc": "Préstamos más grandes y baratos."
+ },
+ {
+  "id": "station3",
+  "name": "Estaciones intermodales",
+  "era": 1,
+  "cost": 250000,
+  "days": 90,
+  "req": [
+   "era_1950"
+  ],
+  "desc": "Estaciones de nivel 3 y radio de captación +20 %."
+ },
+ {
+  "id": "tuning",
+  "name": "Taller de competición",
+  "era": 1,
+  "cost": 150000,
+  "days": 60,
+  "req": [
+   "workshop",
+   "era_1950"
+  ],
+  "desc": "Mejoras por vehículo: motor, frenos, aerodinámica, confort."
+ },
+ {
+  "id": "era_1990",
+  "name": "Era 1990: electrificación",
+  "era": 2,
+  "cost": 1800000,
+  "days": 200,
+  "req": [
+   "era_1950"
+  ],
+  "desc": "Trenes eléctricos, tranvías de piso bajo y metros modernos.",
+  "year": 1980
+ },
+ {
+  "id": "hsr",
+  "name": "Alta velocidad",
+  "era": 2,
+  "cost": 3500000,
+  "days": 240,
+  "req": [
+   "era_1990"
+  ],
+  "desc": "Vías y trenes de alta velocidad (300 km/h)."
+ },
+ {
+  "id": "dispatch",
+  "name": "Control de tráfico centralizado",
+  "era": 2,
+  "cost": 900000,
+  "days": 90,
+  "req": [
+   "era_1990"
+  ],
+  "desc": "Puntualidad +15 % y paradas más cortas."
+ },
+ {
+  "id": "fund",
+  "name": "Gestión de tesorería",
+  "era": 2,
+  "cost": 500000,
+  "days": 60,
+  "req": [
+   "era_1990"
+  ],
+  "desc": "Comisión del fondo indexado reducida a la mitad."
+ },
+ {
+  "id": "era_2030",
+  "name": "Era 2030: electrificación total",
+  "era": 3,
+  "cost": 9000000,
+  "days": 260,
+  "req": [
+   "era_1990"
+  ],
+  "desc": "Autobuses eléctricos, hidrógeno y metros automáticos.",
+  "year": 2020
+ },
+ {
+  "id": "autonomous",
+  "name": "Conducción autónoma",
+  "era": 3,
+  "cost": 6000000,
+  "days": 180,
+  "req": [
+   "era_2030"
+  ],
+  "desc": "Costes de personal −40 %."
+ },
+ {
+  "id": "era_2060",
+  "name": "Era 2060: levitación",
+  "era": 4,
+  "cost": 40000000,
+  "days": 360,
+  "req": [
+   "era_2030",
+   "hsr"
+  ],
+  "desc": "Maglev, pods autónomos y trenes de carga magnéticos.",
+  "year": 2050
+ }
+]
