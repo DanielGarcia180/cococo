@@ -18,7 +18,7 @@ export function licenseMetrics(s: GameState): Record<string, number> {
   m.bestLineMonthProfit = bestLine;
   m.monthProfit5 = s.nodes.filter(n => n.station).length >= 5 ? total : 0;
   m.bestLoad3 = bestLoad3;
-  m.punctuality = punctN ? punctSum / punctN : 0;
+  m.punctuality = punctN && s.vehicles.length >= 3 ? punctSum / punctN : 0;
   m.monthCargo = monthCargo;
   m.maxPop = Math.max(0, ...s.world.cities.map(c => c.pop));
   m.fundGain = fundValue(s) - s.fund.invested;

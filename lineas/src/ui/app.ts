@@ -47,6 +47,7 @@ export class App {
   constructor(game: Game, r: Renderer3D) {
     this.game = game; this.r = r;
     for (const el of Object.values(this.els)) document.body.appendChild(el);
+    this.els.side.addEventListener('focusout', () => setTimeout(() => this.renderSide(), 50));
     this.buildTop(); this.buildTools();
     this.bindCanvas(); this.bindKeys();
     game.listeners.push(e => this.onEvent(e));
@@ -285,7 +286,7 @@ export class App {
   toggleSheet(id: SheetId): void { if (this.sheet === id) this.closeSheet(); else this.openSheet(id); }
   openSheet(id: SheetId): void { this.sheet = id; this.els.sheet.classList.remove('hidden'); this.els.sheet.classList.toggle('wide', !this.selected); this.renderSheet(); this.renderHud(); }
   closeSheet(): void { this.sheet = null; this.els.sheet.classList.add('hidden'); this.renderHud(); }
-  renderSheet(): void { if (!this.sheet) return; const scroll = this.els.sheet.scrollTop; clear(this.els.sheet); this.els.sheet.appendChild(renderSheet(this, this.sheet)); this.els.sheet.scrollTop = scroll; }
+  renderSheet(): void { if (!this.sheet || this.typing(this.els.sheet)) return; const scroll = this.els.sheet.scrollTop; clear(this.els.sheet); this.els.sheet.appendChild(renderSheet(this, this.sheet)); this.els.sheet.scrollTop = scroll; }
 
   // ───────────── modo foto ─────────────
   togglePhoto(): void {
@@ -302,7 +303,7 @@ export class App {
       h('div', { class: 'small muted' }, 'Arrastra para orbitar, rueda para zoom. Esc para salir.'),
       h('label', null, 'Hora del día'),
       h('div', { class: 'row' }, h('input', { type: 'range', min: 0, max: 24, step: 0.1, value: ph.hour ?? this.game.s.hour, style: { flex: 1 }, onInput: (e: Event) => { ph.hour = Number((e.target as HTMLInputElement).value); } }), btn('Hora real', () => { ph.hour = null; this.renderPhoto(); }, 'sm')),
-      h('div', { class: 'row small' }, btn('Hora dorada', () => { ph.hour = 18.6; this.renderPhoto(); }, 'sm'), btn('Mediodía', () => { ph.hour = 12.5; this.renderPhoto(); }, 'sm'), btn('Noche', () => { ph.hour = 23; this.renderPhoto(); }, 'sm')),
+      h('div', { class: 'row small' }, btn('Hora dorada', () => { ph.hour = 17.6; this.renderPhoto(); }, 'sm'), btn('Mediodía', () => { ph.hour = 12.5; this.renderPhoto(); }, 'sm'), btn('Noche', () => { ph.hour = 23; this.renderPhoto(); }, 'sm')),
       slider('Apertura (profundidad de campo)', 0, 0.0004, 0.00001, ph.aperture, v => { ph.aperture = v; }),
       slider('Distancia de enfoque', 3, 300, 1, ph.focus, v => { ph.focus = v; }),
       slider('Viñeteado', 0, 1, 0.05, ph.vignette, v => { ph.vignette = v; }),
@@ -335,8 +336,10 @@ export class App {
   // ───────────── panel lateral ─────────────
   private sideKey = '';
   renderSideLive(): void { if (this.selected || this.lineEditing !== null) this.renderSide(); }
+  private typing(el: HTMLElement): boolean { const a = document.activeElement; return !!a && a !== document.body && el.contains(a) && (a.tagName === 'INPUT' || a.tagName === 'SELECT'); }
   renderSide(): void {
-    const side = this.els.side; const scroll = side.scrollTop; clear(side);
+    const side = this.els.side; if (this.typing(side)) return;   // no interrumpir al usuario mientras escribe
+    const scroll = side.scrollTop; clear(side);
     const s = this.game.s; const sel = this.selected;
     if (!sel) { this.sideKey = ''; this.els.sheet.classList.add('wide'); return; }
     this.els.sheet.classList.remove('wide');
@@ -405,7 +408,7 @@ export class App {
       ),
       section('Paradas', h('div', { class: 'list' }, ...l.stops.map((id, i) => { const n = s.nodes.find(x => x.id === id); return h('div', { class: 'item small' }, h('span', { class: 'muted' }, String(i + 1)), h('span', { class: 'grow', onClick: () => n && this.r.focusOn(n.x, n.y) }, n?.name ?? '?'), btn('✕', () => g.lineRemoveStop(l.id, i), 'sm icon')); }), l.stops.length === 0 && h('div', { class: 'muted small' }, editing ? 'Haz clic en las estaciones del mapa.' : 'Pulsa "Añadir paradas".'))),
       l.cargoKind && section('Mercancía', h('select', { onChange: (e: Event) => { l.cargoKind = (e.target as HTMLSelectElement).value as Line['cargoKind']; g.markDirty(); g.emit({ type: 'lines' }); } }, ...(['ore', 'steel', 'goods', 'wood', 'planks', 'food', 'oil', 'fuel'] as const).map(c => h('option', { value: c, selected: c === l.cargoKind }, t('cargo.' + c)))), h('div', { class: 'small muted' }, 'La línea recoge esta carga en estaciones junto a industrias productoras y la entrega donde se consume.')),
-      !l.cargoKind && section('Tarifa', h('div', { class: 'row' }, h('input', { type: 'range', min: 0.5, max: 2, step: 0.05, value: l.fare, style: { flex: 1 }, onInput: (e: Event) => { l.fare = Number((e.target as HTMLInputElement).value); g.markDirty(); } }), h('span', { class: 'mono' }, `×${l.fare.toFixed(2)}`)), h('div', { class: 'small muted' }, `≈ ${(eraOf(s.era).fare * (0.6 + 0.25 * 2) * l.fare / PAX_UNIT).toFixed(2)} € por viajero y 2 km. Elasticidad −1,2: subir precio reduce demanda.`)),
+      !l.cargoKind && section('Tarifa', h('div', { class: 'row' }, h('input', { type: 'range', min: 0.5, max: 2, step: 0.05, value: l.fare, style: { flex: 1 }, onInput: (e: Event) => { l.fare = Number((e.target as HTMLInputElement).value); g.markDirty(); } }), h('span', { class: 'mono' }, `×${l.fare.toFixed(2)}`)), h('div', { class: 'small muted' }, `≈ ${(eraOf(s.era).fare * (0.6 + 0.25 * Math.pow(2, 0.75)) * l.fare / PAX_UNIT).toFixed(2)} € por viajero y 2 km. Elasticidad −1,2: subir precio reduce demanda.`)),
       section('Color', h('div', { class: 'row' }, ...colors.map(c => h('div', { class: 'swatch' + (c === l.color ? ' on' : ''), style: { background: '#' + c.toString(16).padStart(6, '0') }, onClick: () => g.lineSet(l.id, { color: c }) })))),
       section('Vehículos', h('div', { class: 'list' }, ...vehicles.map(v => { const m = model(v.model); return h('div', { class: 'item small', onClick: () => this.select({ type: 'vehicle', id: v.id }) }, h('span', { class: 'grow' }, m?.name ?? v.model), h('span', { class: 'muted' }, v.state === 'delivery' ? `entrega ${Math.ceil(v.timer)} d` : v.state === 'broken' ? 'avería' : `${Math.round(v.loadCount / Math.max(1, capacityOf(v)) * 100)} %`)); })), h('div', { class: 'row' }, btn('Comprar vehículo', () => this.openSheet('vehicles'), 'primary sm'))),
       section('Rendimiento (12 meses)', h('div', { class: 'grid2 small' },

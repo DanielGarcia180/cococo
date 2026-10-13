@@ -57,7 +57,7 @@ export function generateWorld(p: WorldParams): World {
     const dx = nx - 0.5, dy = ny - 0.5;
     const r = Math.sqrt(dx * dx + dy * dy);
     if (coast === 'island') h -= Math.max(0, r - 0.22) * 1.6;
-    else if (coast === 'coast') h -= Math.max(0, (nx - 0.35) * -1.1) * (ny < 0.5 ? 1.2 : 0.4) + Math.max(0, 0.08 - nx) * 2;
+    else if (coast === 'coast') { const shore = 0.74 + 0.06 * Math.sin(ny * 9 + 1) + 0.03 * Math.sin(ny * 23); h -= Math.max(0, nx - shore) * 2.4 + Math.max(0, 0.05 - nx) * 1.5; }
     else h += 0.08;
     height[y * size + x] = h;
   }

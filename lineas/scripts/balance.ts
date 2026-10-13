@@ -9,7 +9,8 @@ import { coverOf } from '../src/sim/demand';
 import { PAX_UNIT } from '../src/sim/constants';
 import type { Node } from '../src/sim/types';
 
-const hours = Number(process.argv[2] ?? 10); const scenario = process.argv[3] ?? 'random'; const seed = process.argv[4] ?? '2026';
+declare const process: { argv: string[] };
+const hours = Number(process.argv[2] ?? 10); const scenario = process.argv[3] ?? "random"; const seed = process.argv[4] ?? "2026";
 const SPEED = 3;                       // velocidad media de juego del bot
 const g = new Game({ scenario, seed }); const s = g.s;
 const log: string[] = [];

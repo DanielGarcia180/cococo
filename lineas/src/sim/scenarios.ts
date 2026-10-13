@@ -26,7 +26,7 @@ export const SCENARIOS: Scenario[] = [
         { name: 'Aeropuerto', x: 0.46, y: 0.44, pop: 12000 },
         { name: 'Swords', x: 0.50, y: 0.28, pop: 45000 },
         { name: 'Malahide', x: 0.62, y: 0.34, pop: 18000 },
-        { name: 'Howth', x: 0.70, y: 0.62, pop: 9000 },
+        { name: 'Howth', x: 0.70, y: 0.60, pop: 9000 },
         { name: 'Blanchardstown', x: 0.20, y: 0.60, pop: 40000 },
       ],
     },

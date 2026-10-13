@@ -4,7 +4,7 @@ import { generateWorld, nearestCity, isWater } from './world';
 import { DATA, model, tech, eraOf, type VehicleModel } from './data';
 import { routeTrack, TRACK_SPEC, type RouteResult } from './pathfind';
 import { rebuildLine, buildRouting, lineUsesTrack, shortestPath, LINE_COLORS, type Routing } from './network';
-import { rebuildDemand, generate, cityCoverage, type StationCover, type PairRate, type CargoPair } from './demand';
+import { rebuildDemand, generate, cityCoverage, type StationCover, type StationRates, type CargoPair } from './demand';
 import { updateVehicles, bookValue, costMult } from './vehicles';
 import { monthEnd, emptyMonth, companyValue, offerContract, yearOf, monthOf } from './economy';
 import { BAL, DT, SEC_PER_DAY, DAYS_PER_MONTH, SAVE_VERSION } from './constants';
@@ -19,7 +19,7 @@ export interface NewGameOpts {
 /** Contexto de simulación: estado + cachés derivadas (no se guardan). */
 export interface Ctx {
   s: GameState; rng: Rng; routing: Routing;
-  cover: Map<number, StationCover>; rates: Map<number, PairRate[]>; cargoPairs: CargoPair[];
+  cover: Map<number, StationCover>; rates: Map<number, StationRates>; cargoPairs: CargoPair[];
   nodeMap: Map<number, Node>; lineMap: Map<number, Line>; cityCov: Map<number, number>;
   notify: (text: string, kind?: Notification['kind']) => void;
   afterOffline: () => void;
@@ -30,7 +30,8 @@ export type GameEvent = { type: string; [k: string]: unknown };
 export class Game implements Ctx {
   s!: GameState; rng!: Rng;
   routing: Routing = { next: new Map(), reach: new Map() };
-  cover = new Map<number, StationCover>(); rates = new Map<number, PairRate[]>(); cargoPairs: CargoPair[] = [];
+  cover = new Map<number, StationCover>(); rates = new Map<number, StationRates>(); cargoPairs: CargoPair[] = [];
+  private genStep = 0;
   nodeMap = new Map<number, Node>(); lineMap = new Map<number, Line>(); cityCov = new Map<number, number>();
   dirty = true; private acc = 0; private lastDay = 0; private lastMonth = 0; private lastYear = 0;
   listeners: ((e: GameEvent) => void)[] = [];
@@ -125,7 +126,8 @@ export class Game implements Ctx {
     const dtDays = DT / SEC_PER_DAY;
     s.day += dtDays;
     s.hour = (s.day % 1) * 24;
-    generate(this, dtDays);
+    // la generación de demanda corre cada 4 pasos (0,2 s): es el coste dominante y no necesita 20 Hz
+    if (++this.genStep >= 4) { this.genStep = 0; generate(this, dtDays * 4); }
     updateVehicles(this, DT, dtDays);
     const day = Math.floor(s.day);
     if (day !== this.lastDay) { for (let d = this.lastDay; d < day; d++) this.dayEnd(); this.lastDay = day; }

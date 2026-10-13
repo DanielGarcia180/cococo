@@ -51,6 +51,7 @@ Reglas:
 | Tiempo calendario | días (float) | **1 día = 2 s reales a 1×** → 1 mes (30 d) = 1 min, 1 año = 12 min |
 | Velocidad vehículos | km/h de ficha | se mueven a `kmh / 3,6 × VSCALE` m/s con `VSCALE = 20` (escala estilo Transport Fever: el calendario y el movimiento viven en escalas distintas) |
 | Dinero | € | sin inflación general; las tarifas base suben por era |
+| Pasajeros | unidades de 100 viajeros (`PAX_UNIT`) | la interfaz muestra viajeros; la simulación mueve unidades |
 
 ## 3. Mundo procedural
 
@@ -104,8 +105,10 @@ Avería: probabilidad por km = `(1 − fiabilidad) × (0,2 + desgaste) / 50 km`;
 
 ## 7. Economía
 
-- Ingreso por pasajero = `tarifa_base_era × (0,6 + 0,25 × km) × tarifa_rel × (1 + confort×0,05)`.
-- Ingreso por tonelada = `3 × tarifa_base_era × (1 + 0,3 × km)`.
+- Ingreso por pasajero = `tarifa_base_era × (0,6 + 0,25 × km^0,75) × tarifa_rel × (1 + confort×0,05)`.
+  (Sublineal con la distancia: una línea larga gana más por viaje, pero no tanto como para que
+  el tren interurbano se amortice en tres meses.)
+- Ingreso por tonelada = `tarifa_carga_era × (1 + 0,3 × km^0,8)`.
 - Costes: por km recorrido (consumo × precio combustible), mantenimiento mensual por
   vehículo, mantenimiento de estaciones y vías por km, salarios por vehículo.
 - Depreciación lineal 20 años (valor contable para el balance).

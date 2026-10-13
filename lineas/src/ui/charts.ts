@@ -7,9 +7,10 @@ function setup(c: HTMLCanvasElement, w: number, h: number): CanvasRenderingConte
   const ctx = c.getContext('2d')!; ctx.scale(dpr, dpr); ctx.clearRect(0, 0, w, h);
   ctx.font = '11px system-ui, -apple-system, sans-serif'; return ctx;
 }
-function fmt(v: number): string {
+function fmt(v: number, range = Infinity): string {
   const a = Math.abs(v);
-  if (a >= 1e6) return (v / 1e6).toFixed(1) + 'M'; if (a >= 1e3) return (v / 1e3).toFixed(0) + 'k'; return v.toFixed(0);
+  if (a >= 1e6) return (v / 1e6).toFixed(range < 1e6 ? 2 : 1) + 'M'; if (a >= 1e3) return (v / 1e3).toFixed(range < 1e3 ? 1 : 0) + 'k';
+  return v.toFixed(range < 2 ? 2 : range < 20 ? 1 : 0);
 }
 
 export interface Series { name: string; values: number[]; color?: string; dashed?: boolean }
@@ -28,7 +29,7 @@ export function lineChart(c: HTMLCanvasElement, series: Series[], opts: { w?: nu
   const Y = (v: number) => padT + (hh - padT - padB) * (1 - (v - mn) / (mx - mn));
   // rejilla
   ctx.strokeStyle = GRID; ctx.lineWidth = 1; ctx.fillStyle = MUTED; ctx.textAlign = 'right';
-  for (let k = 0; k <= 4; k++) { const v = mn + (mx - mn) * k / 4; const y = Y(v); ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke(); ctx.fillText(fmt(v), padL - 6, y + 4); }
+  for (let k = 0; k <= 4; k++) { const v = mn + (mx - mn) * k / 4; const y = Y(v); ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke(); ctx.fillText(fmt(v, mx - mn), padL - 6, y + 4); }
   if (mn < 0 && mx > 0) { ctx.strokeStyle = '#bbb'; ctx.beginPath(); ctx.moveTo(padL, Y(0)); ctx.lineTo(w - padR, Y(0)); ctx.stroke(); }
   if (opts.labels) { ctx.textAlign = 'center'; const step = Math.ceil(opts.labels.length / 6); for (let i = 0; i < opts.labels.length; i += step) ctx.fillText(opts.labels[i], X(i), hh - 5); }
   if (opts.band) {
@@ -53,7 +54,7 @@ export function barChart(c: HTMLCanvasElement, values: number[], opts: { w?: num
   const Y = (v: number) => padT + (hh - padT - padB) * (1 - (v - mn) / (mx - mn));
   const bw = (w - padL - padR) / values.length;
   ctx.strokeStyle = GRID; ctx.fillStyle = MUTED; ctx.textAlign = 'right';
-  for (let k = 0; k <= 3; k++) { const v = mn + (mx - mn) * k / 3; ctx.beginPath(); ctx.moveTo(padL, Y(v)); ctx.lineTo(w - padR, Y(v)); ctx.stroke(); ctx.fillText(fmt(v), padL - 6, Y(v) + 4); }
+  for (let k = 0; k <= 3; k++) { const v = mn + (mx - mn) * k / 3; ctx.beginPath(); ctx.moveTo(padL, Y(v)); ctx.lineTo(w - padR, Y(v)); ctx.stroke(); ctx.fillText(fmt(v, mx - mn), padL - 6, Y(v) + 4); }
   values.forEach((v, i) => { ctx.fillStyle = v < 0 ? (opts.colorNeg ?? '#9a9a9a') : INK; const y0 = Y(0), y1 = Y(v); ctx.fillRect(padL + i * bw + bw * 0.15, Math.min(y0, y1), bw * 0.7, Math.max(1, Math.abs(y1 - y0))); });
   if (opts.labels) { ctx.textAlign = 'center'; ctx.fillStyle = MUTED; const step = Math.ceil(opts.labels.length / 6); for (let i = 0; i < opts.labels.length; i += step) ctx.fillText(opts.labels[i], padL + i * bw + bw / 2, hh - 5); }
 }

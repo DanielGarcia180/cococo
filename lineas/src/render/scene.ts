@@ -34,7 +34,7 @@ export class Renderer3D {
   selectRing: THREE.Mesh; hoverMarker: THREE.Mesh;
   weatherPts: THREE.Points; weatherMat: THREE.PointsMaterial;
   composer: EffectComposer; bokeh: BokehPass;
-  photo: PhotoSettings = { active: false, hour: null, aperture: 0.00008, focus: 40, filter: 'none', vignette: 0 };
+  photo: PhotoSettings = { active: false, hour: null, aperture: 0.00002, focus: 40, filter: 'none', vignette: 0 };
   game: Game; w: GameState['world']; nodeIndex: Node[] = []; lastPop = 0; cityHash = '';
   /** Reloj visual (horas): avanza a ritmo constante real, independiente de la velocidad de juego. */
   clock = 9; clockSpeed = 24 / 240;
@@ -107,8 +107,8 @@ export class Renderer3D {
       if (h <= w.seaLevel) c.setHex(0xa8a58a);                            // fondo/arena
       else if (h < 8) c.setHex(0xcfc7a3);                                 // playa
       else if (h < 180) c.setHex(0x9db07a).lerp(new THREE.Color(0x8aa06c), h / 180);
-      else if (h < 380) c.setHex(0x8aa06c).lerp(new THREE.Color(0xa09e8a), (h - 180) / 200);
-      else c.setHex(0xa09e8a).lerp(new THREE.Color(0xe6e6e2), Math.min(1, (h - 380) / 260));
+      else if (h < 420) c.setHex(0x8aa06c).lerp(new THREE.Color(0xa09e8a), (h - 180) / 240);
+      else c.setHex(0xa09e8a).lerp(new THREE.Color(0xe6e6e2), Math.min(1, (h - 420) / 300));
       if (slope > 0.2) c.lerp(new THREE.Color(0x928d80), Math.min(1, (slope - 0.2) * 3));
       colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
     }
@@ -409,6 +409,7 @@ export class Renderer3D {
     this.sun.intensity = (0.35 + 2.3 * Math.pow(day, 0.6)) * cloud;
     this.hemi.intensity = 0.7 + 0.6 * day * cloud;
     this.hemi.color.setHex(day > 0.1 ? 0xcfd9e6 : 0x8ea0bf);
+    const bm = this.buildings.material as THREE.MeshStandardMaterial; bm.emissive.setHex(0xffd9a0); bm.emissiveIntensity = 0.35 * (1 - Math.min(1, day * 4));
     const skyDay = new THREE.Color(0xdfe6ee), skyDusk = new THREE.Color(0xe8c7a6), skyNight = new THREE.Color(0x343c4c);
     let sky: THREE.Color;
     if (elev > 0.25) sky = skyDay.clone().lerp(skyDusk, 0);

@@ -28,9 +28,13 @@ function startFrom(result: Awaited<ReturnType<typeof showMenu>>): void {
   else if (result.state) game.load(result.state);
   game.s.settings.lang = lang; game.s.settings.textScale = getPref('textScale', 1); game.s.settings.colorblind = getPref('colorblind', false);
   r.setWorld(); app.select(null); app.closeSheet(); app.refreshAll();
+  sessionStart();
+}
+/** Progreso offline + objetivos diarios; muestra el resumen si pasó tiempo. */
+function sessionStart(): void {
   game.onSessionStart();
   running = true;
-  if (game.s.offline && game.s.offline.days > 1) { running = false; showOffline(game.s.offline, () => { running = true; }); game.s.offline = null; }
+  if (game.s.offline && game.s.offline.days > 1) { running = false; const o = game.s.offline; game.s.offline = null; app.refreshAll(); showOffline(o, () => { running = true; }); }
 }
 
 app.onMenu = async () => { running = false; const res = await showMenu(true); startFrom(res); };
@@ -46,8 +50,8 @@ function frame(now: number): void {
 }
 requestAnimationFrame(frame);
 window.addEventListener('beforeunload', () => { game.touchRealTime(); saveSlot(game.s, 'auto', { value: companyValue(game.s) }); });
-document.addEventListener('visibilitychange', () => { if (document.hidden) { game.touchRealTime(); saveSlot(game.s, 'auto', { value: companyValue(game.s) }); } });
+document.addEventListener('visibilitychange', () => { if (document.hidden) { game.touchRealTime(); saveSlot(game.s, 'auto', { value: companyValue(game.s) }); } else if (running) sessionStart(); });
 
 showMenu(false).then(startFrom);
 // acceso para depuración y tests e2e
-(window as unknown as { lineas: unknown }).lineas = { game, r, app };
+(window as unknown as { lineas: unknown }).lineas = { game, r, app, sessionStart };

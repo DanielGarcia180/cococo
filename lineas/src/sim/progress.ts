@@ -1,5 +1,5 @@
 import type { GameState, Daily } from './types';
-import { BAL, SEC_PER_DAY } from './constants';
+import { BAL, SEC_PER_DAY, PAX_UNIT } from './constants';
 import { hashString, Rng } from './rng';
 import { companyValue } from './economy';
 import { DATA, tech } from './data';
@@ -14,7 +14,7 @@ const DAILY_TYPES = [
   { id: 'cargo', name: 'Entrega {n} t de mercancías', base: 60 },
   { id: 'km', name: 'Recorre {n} km con la flota', base: 20 },
 ];
-export function dailyName(d: Daily): string { const t = DAILY_TYPES.find(x => x.id === d.id)!; return t.name.replace('{n}', Math.round(d.target).toLocaleString('es-ES')); }
+export function dailyName(d: Daily): string { const t = DAILY_TYPES.find(x => x.id === d.id)!; const n = d.id === 'pax' ? d.target * PAX_UNIT : d.target; return t.name.replace('{n}', Math.round(n).toLocaleString('es-ES')); }
 
 /** Regenera objetivos diarios si cambió la fecha real. Devuelve true si es un día nuevo. */
 export function refreshDailies(s: GameState, now = Date.now()): boolean {

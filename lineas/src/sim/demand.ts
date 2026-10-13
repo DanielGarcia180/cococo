@@ -6,6 +6,7 @@ import type { Ctx } from './game';
 
 export interface StationCover { P: number; A: number; cities: Map<number, number> }   // cities: cityId → fracción cubierta (suma de pesos)
 export interface PairRate { dst: number; rate: number }
+export interface StationRates { list: PairRate[]; sum: number }
 export interface CargoPair { lineId: number; src: number; dst: number; cargo: string; industry: number; toCity: boolean }
 
 export function catchment(s: GameState, n: Node): number {
@@ -86,7 +87,7 @@ export function rebuildDemand(ctx: Ctx): void {
       rate *= 1 + 0.03 * (comfortAt.get(a.id) ?? 0);
       if (rate > 0.05) list.push({ dst: bId, rate });
     }
-    if (list.length) ctx.rates.set(a.id, list);
+    if (list.length) ctx.rates.set(a.id, { list, sum: list.reduce((x, y) => x + y.rate, 0) });
   }
   // demanda potencial por ciudad (para el indicador de servicio): suma de generación con cobertura total
   rebuildCargoPairs(ctx);
@@ -119,26 +120,23 @@ export function rebuildCargoPairs(ctx: Ctx): void {
 export function generate(ctx: Ctx, dtDays: number): void {
   const s = ctx.s;
   const mult = demandMultiplier(s);
-  for (const [src, list] of ctx.rates) {
+  const decay = 1 - BAL.waitDecay * dtDays;
+  for (const [src, sr] of ctx.rates) {
     const n = ctx.nodeMap.get(src); if (!n) continue;
+    const list = sr.list;
     const cap = BAL.stationCap[n.level] * 1.5;
-    let total = 0; for (const k in n.waiting) total += n.waiting[k];
-    const room = Math.max(0, cap - total);
-    let gen = 0;
-    for (const pr of list) {
-      const g = pr.rate * mult * dtDays;
-      n.waiting[pr.dst] = (n.waiting[pr.dst] ?? 0) + g; gen += g;
-    }
+    const w = n.waiting;
+    let total = 0; for (const k in w) total += w[k];
+    const gen = sr.sum * mult * dtDays;
+    const over = Math.max(0, gen - Math.max(0, cap - total));          // saturación: los que no caben se pierden
+    const scale = gen > 0 ? (gen - over) / gen : 0;
+    for (const pr of list) { const g = pr.rate * mult * dtDays * scale; if (g > 0) w[pr.dst] = (w[pr.dst] ?? 0) + g; }
+    n.lost += over;
     // acumula demanda potencial por ciudad
     const cov = ctx.cover.get(src);
     if (cov) for (const [cid, frac] of cov.cities) { const c = s.world.cities[cid]; if (c) c.potential += gen * frac; }
-    if (gen > room) { // saturación: los que no caben se pierden
-      const over = gen - room; n.lost += over;
-      for (const pr of list) n.waiting[pr.dst] = Math.max(0, n.waiting[pr.dst] - over * (pr.rate / Math.max(1e-9, list.reduce((a, b) => a + b.rate, 0))));
-    }
     // abandono por espera
-    const decay = 1 - BAL.waitDecay * dtDays;
-    for (const k in n.waiting) { const before = n.waiting[k]; n.waiting[k] = before * decay; n.lost += before - n.waiting[k]; if (n.waiting[k] < 0.01) delete n.waiting[k]; }
+    for (const k in w) { const before = w[k]; const after = before * decay; w[k] = after; n.lost += before - after; if (after < 0.01) delete w[k]; }
   }
   // industrias: producción continua
   for (const ind of s.world.industries) {
@@ -168,9 +166,9 @@ export function generate(ctx: Ctx, dtDays: number): void {
 
 export function fareFor(s: GameState, km: number, fareMult: number, comfort: number): number {
   const era = eraOf(s.era);
-  return era.fare * (BAL.fareBase + BAL.fareKm * km) * fareMult * (1 + 0.05 * comfort) * (1 + 0.04 * (s.prestige.spent.revenue ?? 0));
+  return era.fare * (BAL.fareBase + BAL.fareKm * Math.pow(km, 0.75)) * fareMult * (1 + 0.05 * comfort) * (1 + 0.04 * (s.prestige.spent.revenue ?? 0));
 }
 export function cargoFareFor(s: GameState, km: number): number {
   const era = eraOf(s.era);
-  return era.cargoFare * (1 + BAL.cargoKm * km) * (1 + 0.04 * (s.prestige.spent.revenue ?? 0));
+  return era.cargoFare * (1 + BAL.cargoKm * Math.pow(km, 0.8)) * (1 + 0.04 * (s.prestige.spent.revenue ?? 0));
 }

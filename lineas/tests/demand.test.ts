@@ -19,7 +19,7 @@ describe('demanda', () => {
   it('solo se generan viajes entre estaciones conectadas por líneas', () => {
     const g = new Game({ scenario: 'isla', seed: 7 }); const { a, b } = buildStarterLine(g); const s = g.s;
     const c = s.world.cities[1]; const lonely = g.placeNode(c.x, c.y, 'rail')!; g.rush('node', lonely.id); g.refresh();
-    expect(g.rates.has(a.id)).toBe(true); expect(g.rates.get(a.id)!.some(p => p.dst === b.id)).toBe(true);
+    expect(g.rates.has(a.id)).toBe(true); expect(g.rates.get(a.id)!.list.some(p => p.dst === b.id)).toBe(true);
     expect(g.rates.has(lonely.id)).toBe(false);
     runDays(g, 10);
     expect(Object.keys(lonely.waiting).length).toBe(0); expect(Object.values(a.waiting).reduce((x, y) => x + y, 0)).toBeGreaterThan(0);
