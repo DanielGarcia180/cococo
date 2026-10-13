@@ -1,0 +1,42 @@
+[
+ {
+  "index": 0,
+  "year": 1900,
+  "name": "Vapor y tranvía",
+  "fare": 16,
+  "cargoFare": 6,
+  "fuel": 30
+ },
+ {
+  "index": 1,
+  "year": 1950,
+  "name": "Diésel y hormigón",
+  "fare": 24,
+  "cargoFare": 9,
+  "fuel": 35
+ },
+ {
+  "index": 2,
+  "year": 1990,
+  "name": "Electrificación",
+  "fare": 40,
+  "cargoFare": 15,
+  "fuel": 50
+ },
+ {
+  "index": 3,
+  "year": 2030,
+  "name": "Electrificación total",
+  "fare": 60,
+  "cargoFare": 22,
+  "fuel": 42
+ },
+ {
+  "index": 4,
+  "year": 2060,
+  "name": "Levitación",
+  "fare": 80,
+  "cargoFare": 30,
+  "fuel": 32
+ }
+]

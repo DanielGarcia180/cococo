@@ -1,0 +1,24 @@
+{
+  "name": "Costa gallega",
+  "version": "1.0",
+  "author": "ejemplo",
+  "scenarios": [
+    {
+      "id": "galicia", "name": "Rías gallegas", "desc": "Costa recortada, ciudades medianas y mucho bosque. Buen mapa para madera y tablones.",
+      "startCash": 300000, "startYear": 1900,
+      "world": { "name": "Rías", "seed": 1981, "size": 128, "cell": 300, "coast": "coast", "relief": 1.1, "industries": 8,
+        "fixedCities": [
+          { "name": "A Coruña", "x": 0.30, "y": 0.22, "pop": 95000 },
+          { "name": "Ferrol", "x": 0.42, "y": 0.14, "pop": 30000 },
+          { "name": "Santiago", "x": 0.34, "y": 0.42, "pop": 60000 },
+          { "name": "Pontevedra", "x": 0.30, "y": 0.62, "pop": 40000 },
+          { "name": "Vigo", "x": 0.26, "y": 0.78, "pop": 120000 },
+          { "name": "Lugo", "x": 0.70, "y": 0.30, "pop": 45000 },
+          { "name": "Ourense", "x": 0.66, "y": 0.70, "pop": 50000 }
+        ] }
+    }
+  ],
+  "tech": [
+    { "id": "ancho_metrico", "name": "Ancho métrico", "era": 0, "cost": 30000, "days": 30, "req": [], "desc": "Investigación de ejemplo añadida por un mod." }
+  ]
+}
